@@ -25,6 +25,7 @@ logging.basicConfig(
 logging.getLogger("httpx").setLevel(logging.WARNING)
 logger = logging.getLogger('coding_agent')
 
+
 def format_history_summary(history: List[Dict[str, Any]]) -> str:
     if not history:
         return "No previous actions."
@@ -78,7 +79,8 @@ def format_history_summary(history: List[Dict[str, Any]]) -> str:
                     # Properly handle and format the tree visualization
                     if tree_visualization and isinstance(tree_visualization, str):
                         # First, ensure we handle any special line ending characters properly
-                        clean_tree = tree_visualization.replace('\r\n', '\n').strip()
+                        clean_tree = tree_visualization.replace(
+                            '\r\n', '\n').strip()
 
                         if clean_tree:
                             # Add each line with proper indentation
@@ -90,7 +92,8 @@ def format_history_summary(history: List[Dict[str, Any]]) -> str:
                             history_str += "  (No tree structure data)\n"
                     else:
                         history_str += "  (Empty or inaccessible directory)\n"
-                        logger.debug(f"Tree visualization missing or invalid: {tree_visualization}")
+                        logger.debug(
+                            f"Tree visualization missing or invalid: {tree_visualization}")
             else:
                 history_str += f"- Result: {result}\n"
 
@@ -102,6 +105,8 @@ def format_history_summary(history: List[Dict[str, Any]]) -> str:
 #############################################
 # Main Decision Agent Node
 #############################################
+
+
 class MainDecisionAgent(Node):
     def prep(self, shared: Dict[str, Any]) -> Tuple[str, List[Dict[str, Any]]]:
         # Get user query and history
@@ -125,6 +130,20 @@ User request: {user_query}
 
 Here are the actions you performed:
 {history_str}
+
+IMPORTANT DECISION RULES:
+- If the user asks for CODE, FUNCTIONS, or IMPLEMENTATIONS (like "write binary search", "create a function", "implement sorting"): Use edit_file to CREATE new code
+- If the user asks to FIND or SEARCH existing code (like "find all functions", "search for imports"): Use grep_search
+- If the user asks to READ/view existing files: Use read_file
+- If the user asks to see directory contents: Use list_dir
+- If the user asks to delete files: Use delete_file
+
+EXAMPLES:
+- "write binary search code" → edit_file (CREATE new code)
+- "implement sorting function" → edit_file (CREATE new code)
+- "find all logger calls" → grep_search (SEARCH existing code)
+- "show me the main.py file" → read_file (READ existing file)
+- "what files are in utils/" → list_dir (LIST directory)
 
 Available tools:
 1. read_file: Read content from a file
@@ -201,10 +220,48 @@ params:
   # parameters specific to the chosen tool
 ```
 
+For CODE GENERATION requests (like "write binary search code"):
+- Use edit_file to create the code
+- If no specific file is mentioned, create it in an appropriate file (like main.py, utils.py, etc.)
+
+Example for code generation:
+```yaml
+tool: edit_file
+reason: |
+  The user is asking for binary search code implementation. This is a code generation request,
+  so I need to create new code content using edit_file.
+params:
+  target_file: main.py
+  instructions: Add a binary search function implementation
+  code_edit: |
+    def binary_search(arr, target):
+        left, right = 0, len(arr) - 1
+
+        while left <= right:
+            mid = (left + right) // 2
+            if arr[mid] == target:
+                return mid
+            elif arr[mid] < target:
+                left = mid + 1
+            else:
+                right = mid - 1
+
+        return -1
+```
+
+Respond with a YAML object containing:
+```yaml
+tool: one of: read_file, edit_file, delete_file, grep_search, list_dir, finish
+reason: |
+  detailed explanation of why you chose this tool and what you intend to do
+params:
+  # parameters specific to the chosen tool
+```
+
 If you believe no more actions are needed, use "finish" as the tool and explain why in the reason.
 """
-        # Call LLM to decide action
-        response = call_llm(prompt)
+        # Call LLM to decide action - use reasoning-plus for complex decision making
+        response = call_llm(prompt, model="reasoning-plus")
 
         # DEBUG: Log the full response
         print(f"DEBUG: Full LLM Response:\n{response}")
@@ -253,7 +310,42 @@ If you believe no more actions are needed, use "finish" as the tool and explain 
             except yaml.YAMLError as e:
                 logger.error(f"YAML parsing error: {e}")
                 logger.error(f"YAML content: {yaml_content}")
-                raise ValueError(f"Invalid YAML response: {e}")
+
+                # Try to fix common YAML issues
+                try:
+                    # Convert JavaScript-style object notation to proper YAML
+                    fixed_content = yaml_content
+                    import re
+
+                    # Fix params: { key: "value" } format to proper YAML
+                    # Match the pattern and convert to proper YAML indentation
+                    def fix_params_block(match):
+                        params_content = match.group(1).strip()
+                        lines = []
+
+                        # Split by commas and process each key-value pair
+                        for pair in params_content.split(','):
+                            pair = pair.strip()
+                            if ':' in pair:
+                                key, value = pair.split(':', 1)
+                                key = key.strip()
+                                value = value.strip()
+                                # Remove quotes if present
+                                if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
+                                    value = value[1:-1]
+                                lines.append(f"  {key}: \"{value}\"")
+
+                        return "params:\n" + "\n".join(lines)
+
+                    # Replace the problematic params block
+                    fixed_content = re.sub(
+                        r'params:\s*{\s*([^}]*)\s*}', fix_params_block, fixed_content, flags=re.MULTILINE | re.DOTALL)
+
+                    print(f"DEBUG: Attempting to fix YAML:\n{fixed_content}")
+                    decision = yaml.safe_load(fixed_content)
+                except Exception as e2:
+                    logger.error(f"Failed to fix YAML: {e2}")
+                    raise ValueError(f"Invalid YAML response: {e}")
 
             # Validate the required fields
             assert "tool" in decision, "Tool name is missing"
@@ -266,7 +358,8 @@ If you believe no more actions are needed, use "finish" as the tool and explain 
                     print(f"DEBUG: Decision object: {decision}")
                     print(f"DEBUG: Tool: {decision.get('tool')}")
                     print(f"DEBUG: Available keys: {list(decision.keys())}")
-                    raise ValueError(f"Parameters are missing for tool '{decision['tool']}'. The LLM response must include a 'params' section.")
+                    raise ValueError(
+                        f"Parameters are missing for tool '{decision['tool']}'. The LLM response must include a 'params' section.")
 
                 # Special validation for edit_file tool
                 if decision["tool"] == "edit_file":
@@ -277,7 +370,8 @@ If you believe no more actions are needed, use "finish" as the tool and explain 
 
                     # Ensure code_edit is not empty
                     if not params["code_edit"] or not params["code_edit"].strip():
-                        raise ValueError("code_edit parameter cannot be empty for edit_file")
+                        raise ValueError(
+                            "code_edit parameter cannot be empty for edit_file")
             else:
                 decision["params"] = {}
 
@@ -307,6 +401,8 @@ If you believe no more actions are needed, use "finish" as the tool and explain 
 #############################################
 # Read File Action Node
 #############################################
+
+
 class ReadFileAction(Node):
     def prep(self, shared: Dict[str, Any]) -> str:
         # Get parameters from the last history entry
@@ -322,7 +418,8 @@ class ReadFileAction(Node):
 
         # Ensure path is relative to working directory
         working_dir = shared.get("working_dir", "")
-        full_path = os.path.join(working_dir, file_path) if working_dir else file_path
+        full_path = os.path.join(
+            working_dir, file_path) if working_dir else file_path
 
         # Use the reason for logging instead of explanation
         reason = last_action.get("reason", "No reason provided")
@@ -349,6 +446,8 @@ class ReadFileAction(Node):
 #############################################
 # Grep Search Action Node
 #############################################
+
+
 class GrepSearchAction(Node):
     def prep(self, shared: Dict[str, Any]) -> Dict[str, Any]:
         # Get parameters from the last history entry
@@ -404,6 +503,8 @@ class GrepSearchAction(Node):
 #############################################
 # List Directory Action Node
 #############################################
+
+
 class ListDirAction(Node):
     def prep(self, shared: Dict[str, Any]) -> str:
         # Get parameters from the last history entry
@@ -444,6 +545,8 @@ class ListDirAction(Node):
 #############################################
 # Delete File Action Node
 #############################################
+
+
 class DeleteFileAction(Node):
     def prep(self, shared: Dict[str, Any]) -> str:
         # Get parameters from the last history entry
@@ -463,7 +566,8 @@ class DeleteFileAction(Node):
 
         # Ensure path is relative to working directory
         working_dir = shared.get("working_dir", "")
-        full_path = os.path.join(working_dir, file_path) if working_dir else file_path
+        full_path = os.path.join(
+            working_dir, file_path) if working_dir else file_path
 
         return full_path
 
@@ -485,6 +589,8 @@ class DeleteFileAction(Node):
 #############################################
 # Read Target File Node (Edit Agent)
 #############################################
+
+
 class ReadTargetFileNode(Node):
     def prep(self, shared: Dict[str, Any]) -> str:
         # Get parameters from the last history entry
@@ -500,7 +606,8 @@ class ReadTargetFileNode(Node):
 
         # Ensure path is relative to working directory
         working_dir = shared.get("working_dir", "")
-        full_path = os.path.join(working_dir, file_path) if working_dir else file_path
+        full_path = os.path.join(
+            working_dir, file_path) if working_dir else file_path
 
         return full_path
 
@@ -520,6 +627,8 @@ class ReadTargetFileNode(Node):
 #############################################
 # Analyze and Plan Changes Node
 #############################################
+
+
 class AnalyzeAndPlanNode(Node):
     def prep(self, shared: Dict[str, Any]) -> Dict[str, Any]:
         # Get history
@@ -607,8 +716,8 @@ If the instruction indicates content should be appended to the file, set both st
 to the maximum line number + 1, which will add the content at the end of the file.
 """
 
-        # Call LLM to analyze - use instruct model for shorter, focused editing prompts
-        response = call_llm(prompt, model="instruct")
+        # Call LLM to analyze - use reasoning model for code analysis
+        response = call_llm(prompt, model="reasoning")
 
         # Look for YAML structure in the response
         yaml_content = ""
@@ -672,9 +781,12 @@ to the maximum line number + 1, which will add the content at the end of the fil
                     op["end_line"] = total_lines + 1
 
                 # Validate line ranges
-                assert 1 <= op["start_line"] <= total_lines + 1, f"start_line out of range: {op['start_line']}"
-                assert 1 <= op["end_line"] <= total_lines + 1, f"end_line out of range: {op['end_line']}"
-                assert op["start_line"] <= op["end_line"], f"start_line > end_line: {op['start_line']} > {op['end_line']}"
+                assert 1 <= op["start_line"] <= total_lines + \
+                    1, f"start_line out of range: {op['start_line']}"
+                assert 1 <= op["end_line"] <= total_lines + \
+                    1, f"end_line out of range: {op['end_line']}"
+                assert op["start_line"] <= op[
+                    "end_line"], f"start_line > end_line: {op['start_line']} > {op['end_line']}"
 
             return decision
         else:
@@ -684,7 +796,6 @@ to the maximum line number + 1, which will add the content at the end of the fil
         # Store reasoning and edit operations in shared
         shared["edit_reasoning"] = exec_res.get("reasoning", "")
         shared["edit_operations"] = exec_res.get("operations", [])
-
 
 
 #############################################
@@ -700,7 +811,8 @@ class ApplyChangesNode(BatchNode):
 
         # Sort edit operations in descending order by start_line
         # This ensures that line numbers remain valid as we edit from bottom to top
-        sorted_ops = sorted(edit_operations, key=lambda op: op["start_line"], reverse=True)
+        sorted_ops = sorted(
+            edit_operations, key=lambda op: op["start_line"], reverse=True)
 
         # Get target file from history
         history = shared.get("history", [])
@@ -715,7 +827,8 @@ class ApplyChangesNode(BatchNode):
 
         # Ensure path is relative to working directory
         working_dir = shared.get("working_dir", "")
-        full_path = os.path.join(working_dir, target_file) if working_dir else target_file
+        full_path = os.path.join(
+            working_dir, target_file) if working_dir else target_file
 
         # Attach file path to each operation
         for op in sorted_ops:
@@ -755,7 +868,6 @@ class ApplyChangesNode(BatchNode):
         # Clear edit operations and reasoning after processing
         shared.pop("edit_operations", None)
         shared.pop("edit_reasoning", None)
-
 
 
 #############################################
@@ -801,7 +913,8 @@ IMPORTANT:
         return response
 
     def post(self, shared: Dict[str, Any], prep_res: List[Dict[str, Any]], exec_res: str) -> str:
-        logger.info(f"###### Final Response Generated ######\n{exec_res}\n###### End of Response ######")
+        logger.info(
+            f"###### Final Response Generated ######\n{exec_res}\n###### End of Response ######")
 
         # Store response in shared
         shared["response"] = exec_res
@@ -811,6 +924,8 @@ IMPORTANT:
 #############################################
 # Edit Agent Flow
 #############################################
+
+
 def create_edit_agent() -> Flow:
     # Create nodes
     read_target = ReadTargetFileNode()
@@ -827,6 +942,8 @@ def create_edit_agent() -> Flow:
 #############################################
 # Main Flow
 #############################################
+
+
 def create_main_flow() -> Flow:
     # Create nodes
     main_agent = MainDecisionAgent()
@@ -854,6 +971,7 @@ def create_main_flow() -> Flow:
 
     # Create flow
     return Flow(start=main_agent)
+
 
 # Create the main flow
 coding_agent_flow = create_main_flow()

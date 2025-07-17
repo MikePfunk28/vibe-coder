@@ -107,7 +107,7 @@ Note: For educational purposes, the instruction is a simplification of cursor. S
           - Reads target file to understand full context
           - Parameters: {target_file, explanation="Reading for edit analysis"}
           - Provides complete code structure for analysis
-      
+
       2. **Analyze and Plan Changes Node**:
           - Reviews edit instructions from Main Agent
           - Outputs a list of specific edits in format:
@@ -116,12 +116,12 @@ Note: For educational purposes, the instruction is a simplification of cursor. S
               {
                 start_line: int,  // First line to replace (1-indexed)
                 end_line: int,    // Last line to replace (1-indexed)
-                replacement: str  // New code 
+                replacement: str  // New code
               },
               ...
             ]
             ```
-      
+
       3. **Apply Changes Batch Node**:
           - Processes each edit in the plan
           - Sorts edits in **descending order by start_line** (from bottom to top of file)
@@ -133,19 +133,19 @@ Note: For educational purposes, the instruction is a simplification of cursor. S
 ```mermaid
 flowchart TD
     userRequest[User Request] --> mainAgent[Main Decision Agent]
-    
+
     mainAgent -->|read_file| readFile[Read File Action]
     mainAgent -->|edit_file| editAgent[Edit File Agent]
     mainAgent -->|delete_file| deleteFile[Delete File Action]
     mainAgent -->|grep_search| grepSearch[Grep Search Action]
     mainAgent -->|list_dir| listDir[List Directory Action with Tree Viz]
-    
+
     readFile --> mainAgent
     editAgent --> mainAgent
     deleteFile --> mainAgent
     grepSearch --> mainAgent
     listDir --> mainAgent
-    
+
     mainAgent -->|done| formatResponse[Format Response]
     formatResponse --> userResponse[Response to User]
 
@@ -174,22 +174,22 @@ flowchart TD
      - Reads content from specified files
      - Input: target_file
      - Output: file content, success status
-   
+
    - **Insert File** (`utils/insert_file.py`)
      - Writes or inserts content to a target file
      - Input: target_file, content, line_number
      - Output: result message, success status
-   
+
    - **Remove File** (`utils/remove_file.py`)
      - Removes content from a file based on line numbers
      - Input: target_file, start_line (optional), end_line (optional)
      - Output: result message, success status
-   
+
    - **Delete File** (`utils/delete_file.py`)
      - Deletes a file from the file system
      - Input: target_file
      - Output: result message, success status
-   
+
    - **Replace File** (`utils/replace_file.py`)
      - Replaces content in a file based on line numbers
      - Input: target_file, start_line, end_line, new_content
@@ -200,7 +200,7 @@ flowchart TD
      - Searches through files for specific patterns using ripgrep-like functionality
      - Input: query, case_sensitive (optional), include_pattern (optional), exclude_pattern (optional), working_dir (optional)
      - Output: list of matches (file path, line number, content), success status
-   
+
 4. **Directory Operations** (`utils/dir_ops.py`)
    - **List Directory**
      - Lists contents of a directory with a tree visualization
@@ -219,10 +219,10 @@ An improved and simpler shared memory structure:
 shared = {
     # User's original query
     "user_query": str,
-    
+
     # Current working directory - all file operations are relative to this path
     "working_dir": str,    # IMPORTANT: All file paths in operations are interpreted relative to this directory
-    
+
     # Action history - stores all actions and their results
     "history": [
         {
@@ -233,7 +233,7 @@ shared = {
             "timestamp": str          # When the action was performed
         }
     ],
-    
+
     # For edit operations (only used during edits)
     "edit_operations": [
         {
@@ -242,7 +242,7 @@ shared = {
             "replacement": str
         }
     ],
-    
+
     # Final response to return to user
     "response": str
 }
@@ -254,7 +254,7 @@ shared = {
 - **Purpose**: Interprets user requests and decides which tool to use
 - **Type**: Regular Node
 - **Steps**:
-  - **prep**: 
+  - **prep**:
     - Read `shared["user_query"]` and `shared["history"]`
     - Return user query and relevant history
   - **exec**:
@@ -394,3 +394,7 @@ shared = {
   - **post**:
     - Store response in `shared["response"]`
     - Return "done"
+
+## Local free API
+- **Local LLM**: Use [Llama.cpp]
+Use Ollama, llama.cpp, lmstudio, which I have or any other as well as the larger models APIs.

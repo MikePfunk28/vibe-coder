@@ -33,10 +33,12 @@ PROVIDER_PRIORITY = os.getenv(
 LMSTUDIO_MODELS = {
     "phi-4-reasoning-plus": "microsoft/phi-4-reasoning-plus",
     "phi-4-mini-reasoning": "microsoft/phi-4-mini-reasoning",
-    "phi-4-mini-instruct": "phi-4-mini-instruct",  # This one doesn't have microsoft/ prefix
+    # This one doesn't have microsoft/ prefix
+    "phi-4-mini-instruct": "phi-4-mini-instruct",
     "instruct": "phi-4-mini-instruct",  # Alias for instruct model
     "reasoning": "microsoft/phi-4-mini-reasoning",  # Alias for reasoning model
-    "reasoning-plus": "microsoft/phi-4-reasoning-plus",  # Alias for reasoning-plus model
+    # Alias for reasoning-plus model
+    "reasoning-plus": "microsoft/phi-4-reasoning-plus",
     "default": "microsoft/phi-4-reasoning-plus"  # Fallback to loaded model
 }
 
@@ -54,39 +56,41 @@ OLLAMA_MODELS = {
 
 def _select_model_for_task(prompt: str, requested_model: str = None) -> str:
     """Enhanced model selection based on task complexity"""
-    
+
     if requested_model:
         return requested_model
-    
+
     # Code generation keywords → use reasoning for better planning
     code_generation_keywords = [
         "write", "create", "implement", "generate", "build", "make",
         "function", "class", "algorithm", "code", "program"
     ]
-    
+
     # Decision-making keywords → use reasoning-plus for better choices
     decision_keywords = [
         "decide", "choose", "select", "determine", "analyze", "plan"
     ]
-    
+
     # Complex reasoning keywords → use reasoning-plus
     complex_reasoning_keywords = [
         "complex", "architecture", "design", "strategy", "approach",
         "step by step", "analyze", "evaluate", "compare"
     ]
-    
+
     prompt_lower = prompt.lower()
-    
+
     # Check for complex reasoning needs
     if any(keyword in prompt_lower for keyword in complex_reasoning_keywords + decision_keywords):
         return "reasoning-plus"
-    
+
     # Check for code generation or basic reasoning needs
     if any(keyword in prompt_lower for keyword in code_generation_keywords):
         return "reasoning"
-    
+
     # Default to instruct for simple tasks
     return "instruct"
+
+
 def call_lmstudio(prompt: str, model_name: str = "phi-4-reasoning-plus") -> str:
     """Call LMStudio local server with dynamic model detection"""
     try:

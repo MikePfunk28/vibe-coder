@@ -249,4 +249,4 @@ public
 !integrations/
 !docs/
 !utils/
-vscode-fork/*
+vscode-fork/

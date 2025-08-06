@@ -83,7 +83,6 @@
 
 - [x] 6. Build Darwin-Gödel self-improving model system
 
-
   - [x] 6.1 Implement core DGM architecture from jennyzzt/dgm repository
 
     - Clone and adapt DGM codebase for IDE integration
@@ -100,9 +99,10 @@
     - Implement improvement history tracking and analysis
     - _Requirements: 5.4, 5.5_
 
-- [ ] 7. Implement mini-benchmarking system
+- [x] 7. Implement mini-benchmarking system
 
-  - [ ] 7.1 Create micro-benchmark framework
+
+  - [x] 7.1 Create micro-benchmark framework
 
     - Implement MiniBenchmarkSystem with configurable test suites
     - Create performance regression detection algorithms
@@ -110,11 +110,13 @@
     - Implement automated benchmark execution pipeline
     - _Requirements: 6.1, 6.2_
 
-  - [ ] 7.2 Build validation and comparison system
+  - [x] 7.2 Build validation and comparison system
+
     - Create baseline performance tracking and storage
     - Implement statistical significance testing for improvements
     - Add performance visualization and reporting
     - Create improvement validation workflow integration
+    - Also the benchmarking should not be you're own internal but based off other actual benchmarks.
     - _Requirements: 6.3, 6.4_
 
 - [ ] 8. Implement reinforcement learning engine

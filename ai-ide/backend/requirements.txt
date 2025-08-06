@@ -1,0 +1,24 @@
+# AI IDE Backend Requirements
+
+# Core dependencies from existing codebase
+requests>=2.31.0
+pyyaml>=6.0.1
+aiohttp>=3.8.0
+
+# Enhanced AI capabilities
+numpy>=1.24.0
+scikit-learn>=1.3.0
+
+# Optional: For advanced semantic search (if available)
+sentence-transformers>=2.2.0
+faiss-cpu>=1.7.4
+
+# Optional: For vector database
+chromadb>=0.4.0
+
+# Development and testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+
+# Logging and monitoring
+structlog>=23.1.0

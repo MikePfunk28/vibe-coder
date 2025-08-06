@@ -21,6 +21,7 @@ def main():
     """
     # Parse command-line arguments
     parser = argparse.ArgumentParser(description='Coding Agent - AI-powered coding assistant')
+    
     parser.add_argument('--query', '-q', type=str, help='User query to process', required=False)
     parser.add_argument('--working-dir', '-d', type=str, default=os.path.join(os.getcwd(), "project"), 
                         help='Working directory for file operations (default: current directory)')

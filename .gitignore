@@ -4,12 +4,44 @@ vendor/
 .pnp/
 .pnp.js
 
+# Python virtual environments
+venv/
+.venv/
+env/
+.env/
+ENV/
+env.bak/
+venv.bak/
+.python-version
+
+# Python compiled files
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
 # Build outputs
 dist/
 build/
 out/
-*.pyc
-__pycache__/
 
 # Environment files
 .env
@@ -18,6 +50,36 @@ __pycache__/
 .env.development
 .env.test
 .env.production
+
+# AI IDE specific files
+# Darwin-Gödel Model system data
+dgm_versions/
+dgm_backups/
+ai-ide/backend/dgm_versions/
+ai-ide/backend/dgm_backups/
+
+# LM Studio and model files
+*.gguf
+*.bin
+models/
+lm_studio_models/
+
+# Semantic search indices
+*.faiss
+*.index
+embeddings/
+vector_db/
+
+# PocketFlow workflow data
+workflows/
+.pocketflow/
+
+# Qwen Coder cache
+qwen_cache/
+.qwen/
+
+# Apple Interleaved System cache
+interleaved_cache/
 
 # IDE - VSCode
 .vscode/*
@@ -43,6 +105,8 @@ logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pytest.log
+test.log
 
 # Operating System
 .DS_Store
@@ -53,11 +117,26 @@ Thumbs.db
 # Testing
 coverage/
 .nyc_output/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
 
 # Temporary files
 *.tmp
 *.temp
 .cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
 
 # Compiled files
 *.com
@@ -77,10 +156,29 @@ coverage/
 *.tar
 *.zip
 
-# Database
+# Database files
 *.sqlite
 *.sqlite3
 *.db
+*.db-journal
+
+# AI/ML specific
+# Trained models (unless specifically needed)
+*.pkl
+*.pickle
+*.joblib
+*.h5
+*.hdf5
+*.pt
+*.pth
+*.onnx
+
+# Data files (usually too large for git)
+data/
+datasets/
+*.csv
+*.json.gz
+*.parquet
 
 # Optional npm cache directory
 .npm
@@ -90,6 +188,60 @@ coverage/
 
 # Optional REPL history
 .node_repl_history
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env.test.local
+
+# parcel-bundler cache (https://parceljs.org/)
+.parcel-cache
+
+# Next.js build output
+.next
+
+# Nuxt.js build / generate output
+.nuxt
+
+# Gatsby files
+.cache/
+public
+
+# Storybook build outputs
+.out
+.storybook-out
+
+# Temporary folders
+tmp/
+temp/
+
+# Editor directories and files
+.vscode/
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# MacOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# VSCodium extension development
+*.vsix
+extension-logs/
 .venv/*
 .__pycache__/*
 docs/*

@@ -113,7 +113,7 @@ def call_lmstudio(prompt: str, model_name: str = "phi-4-reasoning-plus") -> str:
             f"{LMSTUDIO_URL}/v1/chat/completions",
             json=payload,
             headers=headers,
-            timeout=300  # 5 minutes timeout
+            timeout=600  # 10 minutes timeout
         )
 
         if response.status_code == 200:
@@ -155,7 +155,7 @@ def call_ollama(prompt: str, model_name: str = "phi-4-reasoning-plus") -> str:
             f"{OLLAMA_URL}/api/generate",
             json=payload,
             headers=headers,
-            timeout=300  # 5 minutes timeout
+            timeout=600  # 10 minutes timeout
         )
 
         if response.status_code == 200:

@@ -1,0 +1,67 @@
+{
+  "name": "ai-assistant",
+  "displayName": "AI Assistant",
+  "description": "Advanced AI-powered coding assistant",
+  "version": "0.1.0",
+  "publisher": "ai-ide",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "ai-assistant.openChat",
+        "title": "Open AI Chat",
+        "category": "AI Assistant"
+      },
+      {
+        "command": "ai-assistant.generateCode",
+        "title": "Generate Code from Selection",
+        "category": "AI Assistant"
+      },
+      {
+        "command": "ai-assistant.semanticSearch",
+        "title": "Semantic Search",
+        "category": "AI Assistant"
+      },
+      {
+        "command": "ai-assistant.reasoning",
+        "title": "AI Reasoning",
+        "category": "AI Assistant"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "ai-assistant.openChat",
+        "key": "ctrl+shift+a",
+        "mac": "cmd+shift+a"
+      },
+      {
+        "command": "ai-assistant.generateCode",
+        "key": "ctrl+shift+g",
+        "mac": "cmd+shift+g",
+        "when": "editorHasSelection"
+      },
+      {
+        "command": "ai-assistant.semanticSearch",
+        "key": "ctrl+shift+s",
+        "mac": "cmd+shift+s"
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "18.x",
+    "typescript": "^5.3.2"
+  },
+  "dependencies": {
+    "axios": "^1.6.2"
+  }
+}

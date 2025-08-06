@@ -1,9 +1,9 @@
-from pocketflow import Node, Flow, BatchNode
 import os
 import yaml  # Add YAML support
+import re
 import logging
 from datetime import datetime
-from typing import List, Dict, Any, Tuple
+from typing: List, Dict, Any, Tuple
 
 # Import utility functions
 from utils.call_llm import call_llm
@@ -139,11 +139,16 @@ IMPORTANT DECISION RULES:
 - If the user asks to delete files: Use delete_file
 
 EXAMPLES:
-- "write binary search code" → edit_file (CREATE new code)
-- "implement sorting function" → edit_file (CREATE new code)
-- "find all logger calls" → grep_search (SEARCH existing code)
-- "show me the main.py file" → read_file (READ existing file)
-- "what files are in utils/" → list_dir (LIST directory)
+- "write binary search code" 
+ edit_file (CREATE new code)
+- "implement sorting function" 
+ edit_file (CREATE new code)
+- "find all logger calls" 
+ grep_search (SEARCH existing code)
+- "show me the main.py file" 
+ read_file (READ existing file)
+- "what files are in utils/" 
+ list_dir (LIST directory)
 
 Available tools:
 1. read_file: Read content from a file
@@ -208,14 +213,13 @@ Available tools:
    - Example:
      tool: finish
      reason: I have completed the requested task of finding all logger instances
-     params: {{}}
+     params: {}
 
 Respond with a YAML object containing:
 ```yaml
 tool: one of: read_file, edit_file, delete_file, grep_search, list_dir, finish
 reason: |
   detailed explanation of why you chose this tool and what you intend to do
-  if you chose finish, explain why no more actions are needed
 params:
   # parameters specific to the chosen tool
 ```
@@ -264,42 +268,44 @@ If you believe no more actions are needed, use "finish" as the tool and explain 
         response = call_llm(prompt, model="reasoning-plus")
 
         # DEBUG: Log the full response
-        print(f"DEBUG: Full LLM Response:\n{response}")
-        print(f"DEBUG: Response length: {len(response)}")
+        print(f"DEBUG: Full LLM Response in MainDecisionAgent:\n{response}")
+        print(f"DEBUG: Response length in MainDecisionAgent: {len(response)}")
 
-        # Look for YAML structure in the response
+        
+        
+        
+        
+        
         yaml_content = ""
-        if "```yaml" in response:
-            yaml_blocks = response.split("```yaml")
-            if len(yaml_blocks) > 1:
-                yaml_content = yaml_blocks[1].split("```")[0].strip()
-        elif "```yml" in response:
-            yaml_blocks = response.split("```yml")
-            if len(yaml_blocks) > 1:
-                yaml_content = yaml_blocks[1].split("```")[0].strip()
-        elif "```" in response:
-            # Try to extract from generic code block
-            yaml_blocks = response.split("```")
-            if len(yaml_blocks) > 1:
-                yaml_content = yaml_blocks[1].strip()
-        else:
-            # If no code blocks, try to use the entire response
-            yaml_content = response.strip()
+        # Use regex to find the first YAML block
+        match = re.search(r"```(?:yaml|yml)?\s*(.*?)\s*```", response, re.DOTALL)
+        if match:
+            yaml_content = match.group(1).strip()
+            print(f"DEBUG: Extracted YAML block using regex in MainDecisionAgent:\n{yaml_content}")
+            try:
+                test_parse = yaml.safe_load(yaml_content)
+                if not (isinstance(test_parse, dict) and "tool" in test_parse and "reason" in test_parse):
+                    yaml_content = "" # Reset if not valid or missing keys
+            except yaml.YAMLError:
+                yaml_content = "" # Reset if parsing fails
+
+        if not yaml_content: # Fallback if no valid YAML block found or keys missing
+            print(f"DEBUG: No valid YAML block found in MainDecisionAgent, attempting to parse entire response as YAML.\nResponse: {response.strip()}")
+            try:
+                test_parse = yaml.safe_load(response.strip())
+                if isinstance(test_parse, dict) and "tool" in test_parse and "reason" in test_parse:
+                    yaml_content = response.strip()
+            except yaml.YAMLError as e:
+                print(f"DEBUG: Fallback YAML parsing failed in MainDecisionAgent: {e}")
+                pass
 
         # DEBUG: Log the extracted YAML
         print(f"DEBUG: Extracted YAML:\n{yaml_content}")
 
         # Clean up the YAML content to remove any trailing text
         if yaml_content:
-            # Split by lines and stop at the first line that doesn't look like YAML
-            lines = yaml_content.split('\n')
-            clean_lines = []
-            for line in lines:
-                # Stop if we encounter text that doesn't look like YAML
-                if line.strip() and not line.startswith(' ') and not line.startswith('-') and ':' not in line and not line.startswith('#'):
-                    break
-                clean_lines.append(line)
-            yaml_content = '\n'.join(clean_lines).strip()
+            # No aggressive cleaning, assume LLM provides clean YAML within code blocks
+            pass
 
         # DEBUG: Log the cleaned YAML
         print(f"DEBUG: Cleaned YAML:\n{yaml_content}")
@@ -315,7 +321,7 @@ If you believe no more actions are needed, use "finish" as the tool and explain 
                 try:
                     # Convert JavaScript-style object notation to proper YAML
                     fixed_content = yaml_content
-                    import re
+
 
                     # Fix params: { key: "value" } format to proper YAML
                     # Match the pattern and convert to proper YAML indentation
@@ -331,7 +337,7 @@ If you believe no more actions are needed, use "finish" as the tool and explain 
                                 key = key.strip()
                                 value = value.strip()
                                 # Remove quotes if present
-                                if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
+                                if (value.startswith('"') and value.endswith('"')) or (value.startswith("'') and value.endswith("'")):
                                     value = value[1:-1]
                                 lines.append(f"  {key}: \"{value}\"")
 
@@ -609,6 +615,10 @@ class ReadTargetFileNode(Node):
         full_path = os.path.join(
             working_dir, file_path) if working_dir else file_path
 
+        # Use the reason for logging instead of explanation
+        reason = last_action.get("reason", "No reason provided")
+        logger.info(f"ReadFileAction: {reason}")
+
         return full_path
 
     def exec(self, file_path: str) -> Tuple[str, bool]:
@@ -665,8 +675,8 @@ class AnalyzeAndPlanNode(Node):
 
         # Generate a prompt for the LLM to analyze the edit using YAML instead of JSON
         prompt = f"""
-As a code editing assistant, I need to convert the following code edit instruction
-and code edit pattern into specific edit operations (start_line, end_line, replacement).
+Given the following file content, edit instructions, and code edit pattern,
+generate a YAML object containing your reasoning and a list of specific edit operations.
 
 FILE CONTENT ({total_lines} lines):
 {file_content}
@@ -677,18 +687,15 @@ EDIT INSTRUCTIONS:
 CODE EDIT PATTERN (markers like "// ... existing code ..." indicate unchanged code):
 {code_edit}
 
-Analyze the file content and the edit pattern to determine exactly where changes should be made.
-Be very careful with start and end lines. They are 1-indexed and inclusive. These will be REPLACED, not APPENDED!
-The file has {total_lines} lines total, so line numbers must be between 1 and {total_lines}.
-If you want APPEND, just copy that line as the first line of the replacement.
-Return a YAML object with your reasoning and an array of edit operations:
+Return a YAML object with your reasoning and an array of edit operations.
+Each operation must include `start_line` (1-indexed, inclusive), `end_line` (1-indexed, inclusive),
+and `replacement` (the new code).
+If content should be appended, set `start_line` and `end_line` to `{total_lines + 1}`.
 
 ```yaml
 reasoning: |
-  First explain your thinking process about how you're interpreting the edit pattern.
-  Explain how you identified where the edits should be made in the original file.
-  Describe any assumptions or decisions you made when determining the edit locations.
-  You need to be very precise with the start and end lines! Reason why not 1 line before or after the start and end lines.
+  Explain your interpretation of the edit pattern and how you determined the edit locations.
+  Be precise with line numbers.
 
 operations:
   - start_line: 10
@@ -707,49 +714,34 @@ operations:
     replacement: |
       logger.info("File processing completed")
 ```
-
-For lines that include "// ... existing code ...", do not include them in the replacement.
-Instead, identify the exact lines they represent in the original file and set the line
-numbers accordingly. Start_line and end_line are 1-indexed.
-
-If the instruction indicates content should be appended to the file, set both start_line and end_line
-to the maximum line number + 1, which will add the content at the end of the file.
 """
 
         # Call LLM to analyze - use reasoning model for code analysis
         response = call_llm(prompt, model="reasoning")
 
-        # Look for YAML structure in the response
+        # DEBUG: Log the raw LLM response for AnalyzeAndPlanNode
+        print(f"DEBUG: Raw LLM Response in AnalyzeAndPlanNode: {response}")
+
         yaml_content = ""
-        if "```yaml" in response:
-            yaml_blocks = response.split("```yaml")
-            if len(yaml_blocks) > 1:
-                yaml_content = yaml_blocks[1].split("```")[0].strip()
-        elif "```yml" in response:
-            yaml_blocks = response.split("```yml")
-            if len(yaml_blocks) > 1:
-                yaml_content = yaml_blocks[1].split("```")[0].strip()
-        elif "```" in response:
-            # Try to extract from generic code blocks - find the cleanest one
-            yaml_blocks = response.split("```")
-            for i, block in enumerate(yaml_blocks):
-                if i == 0:
-                    continue  # Skip first block (usually text before code)
-
-                # Skip blocks that start with "yaml" - get the content after
-                if block.strip().startswith("yaml"):
-                    continue
-
-                # Try to parse this block as YAML
-                block_content = block.strip()
-                if block_content and not block_content.startswith("yaml"):
-                    try:
-                        test_parse = yaml.safe_load(block_content)
-                        if isinstance(test_parse, dict) and "operations" in test_parse:
-                            yaml_content = block_content
-                            break
-                    except Exception:
-                        continue
+        # Use regex to find all YAML blocks
+        yaml_blocks = re.findall(r"```(?:yaml|yml)?\s*(.*?)\s*```", response, re.DOTALL)
+        
+        for block in yaml_blocks:
+            try:
+                test_parse = yaml.safe_load(block.strip())
+                if isinstance(test_parse, dict) and "reasoning" in test_parse and "operations" in test_parse:
+                    yaml_content = block.strip()
+                    break
+            except yaml.YAMLError:
+                continue
+        
+        if not yaml_content: # Fallback if no code blocks found
+            try:
+                test_parse = yaml.safe_load(response.strip())
+                if isinstance(test_parse, dict) and "reasoning" in test_parse and "operations" in test_parse:
+                    yaml_content = response.strip()
+            except yaml.YAMLError:
+                pass
 
         if yaml_content:
             decision = yaml.safe_load(yaml_content)
@@ -781,9 +773,9 @@ to the maximum line number + 1, which will add the content at the end of the fil
                     op["end_line"] = total_lines + 1
 
                 # Validate line ranges
-                assert 1 <= op["start_line"] <= total_lines + \
+                assert 1 <= op["start_line"] <= total_lines +
                     1, f"start_line out of range: {op['start_line']}"
-                assert 1 <= op["end_line"] <= total_lines + \
+                assert 1 <= op["end_line"] <= total_lines +
                     1, f"end_line out of range: {op['end_line']}"
                 assert op["start_line"] <= op[
                     "end_line"], f"start_line > end_line: {op['start_line']} > {op['end_line']}"

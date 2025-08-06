@@ -19,6 +19,8 @@ venv.bak/
 *.pyo
 *.pyd
 __pycache__/
+*.py[cod]
+*$py.class
 *.so
 .Python
 build/
@@ -42,14 +44,19 @@ MANIFEST
 dist/
 build/
 out/
+*.tgz
+*.tar.gz
 
 # Environment files
 .env
 .env.local
 .env.*.local
 .env.development
+.env.development.local
 .env.test
+.env.test.local
 .env.production
+.env.production.local
 
 # AI IDE specific files
 # Darwin-Gödel Model system data
@@ -81,12 +88,28 @@ qwen_cache/
 # Apple Interleaved System cache
 interleaved_cache/
 
-# IDE - VSCode
+# Browser automation
+screenshots/
+downloads/
+browser_history_*.json
+
+# Email automation sensitive data
+email_history_*.json
+*.credentials
+
+# LLM and coding agent data
+coding_agent.log
+llm_cache.json
+
+# IDE - VSCode/VSCodium
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+.vscode-test/
+*.vsix
+extension-logs/
 
 # IDE - JetBrains
 .idea/
@@ -109,10 +132,32 @@ pytest.log
 test.log
 
 # Operating System
+# MacOS
 .DS_Store
+.DS_Store?
+._*
+.AppleDouble
+.LSOverride
+.Spotlight-V100
+.Trashes
+
+# Windows
 Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# Editor files
 *.swp
 *.swo
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
 # Testing
 coverage/
@@ -137,6 +182,8 @@ ipython_config.py
 .mypy_cache/
 .dmypy.json
 dmypy.json
+tmp/
+temp/
 
 # Compiled files
 *.com
@@ -144,7 +191,6 @@ dmypy.json
 *.dll
 *.exe
 *.o
-*.so
 
 # Package files
 *.7z
@@ -180,200 +226,27 @@ datasets/
 *.json.gz
 *.parquet
 
-# Optional npm cache directory
+# Node.js specific
 .npm
-
-# Optional eslint cache
 .eslintcache
-
-# Optional REPL history
 .node_repl_history
-
-# Yarn Integrity file
 .yarn-integrity
+package-lock.json
 
-# dotenv environment variables file
-.env.test.local
-
-# parcel-bundler cache (https://parceljs.org/)
+# Build tools and bundlers
 .parcel-cache
-
-# Next.js build output
 .next
-
-# Nuxt.js build / generate output
 .nuxt
-
-# Gatsby files
-.cache/
-public
-
-# Storybook build outputs
 .out
 .storybook-out
 
-# Temporary folders
-tmp/
-temp/
+# Gatsby files
+public
 
-# Editor directories and files
-.vscode/
-.idea
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# MacOS
-.DS_Store
-.AppleDouble
-.LSOverride
-
-# Windows
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-$RECYCLE.BIN/
-
-# Linux
-*~
-
-# VSCodium extension development
-*.vsix
-extension-logs/
-.venv/*
-.__pycache__/*
-docs/*
-logs/*
-vs-code-extensions/*
-vscode/*
-vscode-fork/*
-.gitignore
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# Virtual environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Node.js
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.npm
-.eslintcache
-package-lock.json
-
-# VSCode
-.vscode/
-*.vsix
-.vscode-test/
-
-# Build outputs
-dist/
-build/
-out/
-*.tgz
-*.tar.gz
-
-# Logs and cache
-logs/
-*.log
-browser_history_*.json
-coding_agent.log
-llm_cache.json
-.cache/
-
-# Operating System
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# IDE
-.idea/
-*.swp
-*.swo
-*~
-
-# Browser automation
-screenshots/
-downloads/
-
-# Email automation sensitive data
-email_history_*.json
-*.credentials
-
-# Environment files
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Temporary files
-tmp/
-temp/
-*.tmp
-*.temp
-
-# Database
-*.sqlite
-*.sqlite3
-*.db
-
-# Compiled files
-*.com
-*.class
-*.dll
-*.exe
-*.o
-
-# Package files
-*.7z
-*.dmg
-*.gz
-*.iso
-*.jar
-*.rar
-*.tar
-*.zip
-
-# Testing
-coverage/
-.nyc_output/
-
-# Don't ignore these important directories
+# Important directories to keep (override previous ignores)
 !vscode-extensions/
 !browser-automation/
 !integrations/
 !docs/
 !utils/
+vscode-fork/*

@@ -16,3 +16,13 @@ onnxruntime-gpu>=1.16.0     # If you have GPU support
 transformers>=4.35.0
 torch>=2.0.0               # PyTorch for local model inference
 accelerate>=0.24.0         # For faster model loading
+
+# RAG System Dependencies
+sentence-transformers>=2.2.0  # For semantic embeddings
+beautifulsoup4>=4.12.0        # For HTML parsing
+aiohttp>=3.8.0               # For async HTTP requests
+scikit-learn>=1.3.0          # For similarity calculations
+numpy>=1.24.0                # For numerical operations
+openai>=1.0.0                # For OpenAI embeddings (optional)
+chromadb>=0.4.0              # For vector database (optional)
+faiss-cpu>=1.7.0             # For vector similarity search (optional)

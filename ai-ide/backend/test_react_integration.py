@@ -10,7 +10,8 @@ from unittest.mock import Mock, AsyncMock, patch
 from datetime import datetime
 
 from react_integration import ReActAgentIntegration, ReActIntegrationConfig, ContextAwareToolSelector
-from react_framework import ReActFramework, Tool, ActionType
+from react_framework import ReActFramework
+from react_core import Tool, ActionType
 from multi_agent_system import MultiAgentSystem, AgentTask, TaskStatus, TaskPriority
 from chain_of_thought_engine import ChainOfThoughtEngine
 

@@ -10,7 +10,8 @@ import logging
 from typing import Dict, List, Optional, Any, Union
 from dataclasses import dataclass
 
-from react_framework import ReActFramework, Tool, ActionType
+from react_framework import ReActFramework
+from react_core import Tool, ActionType
 from multi_agent_system import MultiAgentSystem, AgentTask, TaskPriority
 from chain_of_thought_engine import ChainOfThoughtEngine
 

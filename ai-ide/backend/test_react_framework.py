@@ -11,10 +11,10 @@ import json
 from unittest.mock import Mock, AsyncMock, patch
 from datetime import datetime
 
-from react_framework import (
-    ReActFramework, Tool, ToolRegistry, ToolSelector, AdaptiveReasoningStrategy,
-    ActionType, ReasoningStep, ReActStep, ReActTrace
-)
+from react_framework import ReActFramework
+from react_core import Tool, ActionType, ReasoningStep, ReActStep, ReActTrace
+from react_tools import ToolRegistry, ToolSelector
+from react_strategy import AdaptiveReasoningStrategy
 
 
 class MockLLMClient:

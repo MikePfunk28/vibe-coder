@@ -255,8 +255,8 @@ class BaseAgent(ABC):
             }
         }
 
-cla
-ss CodeAgent(BaseAgent):
+
+class CodeAgent(BaseAgent):
     """Specialized agent for code generation, completion, and analysis."""
     
     def __init__(self, agent_id: str, llm_client, context_manager):
@@ -1183,8 +1183,9 @@ class TestAgent(BaseAgent):
             "validation_result": validation_result,
             "validator": self.agent_id
         }
-clas
-s MultiAgentSystem:
+
+
+class MultiAgentSystem:
     """
     Coordinator for the multi-agent system.
     

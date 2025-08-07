@@ -1,13 +1,27 @@
 import * as vscode from 'vscode';
 import { PocketFlowBridge } from './services/PocketFlowBridge';
+import { ChatProvider } from './providers/ChatProvider';
+import { SearchDashboardProvider } from './providers/SearchDashboardProvider';
 
 let pocketFlowBridge: PocketFlowBridge;
+let chatProvider: ChatProvider;
+let searchDashboardProvider: SearchDashboardProvider;
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('AI Assistant extension is now active!');
 
     // Initialize PocketFlow bridge
     pocketFlowBridge = new PocketFlowBridge(context.extensionPath);
+    
+    // Initialize providers
+    chatProvider = new ChatProvider(context, pocketFlowBridge);
+    searchDashboardProvider = new SearchDashboardProvider(context, pocketFlowBridge);
+    
+    // Register webview providers
+    context.subscriptions.push(
+        vscode.window.registerWebviewViewProvider(ChatProvider.viewType, chatProvider),
+        vscode.window.registerWebviewViewProvider(SearchDashboardProvider.viewType, searchDashboardProvider)
+    );
     
     // Initialize backend services
     initializeBackendServices(context);
@@ -29,16 +43,44 @@ export function activate(context: vscode.ExtensionContext) {
         await performReasoning();
     });
 
+    // New commands for advanced features
+    const openSearchDashboardCommand = vscode.commands.registerCommand('ai-assistant.openSearchDashboard', async () => {
+        // Focus on the search dashboard view
+        vscode.commands.executeCommand('ai-assistant.searchDashboard.focus');
+    });
+
+    const insertCodeSnippetCommand = vscode.commands.registerCommand('ai-assistant.insertCodeSnippet', async (snippet) => {
+        await insertCodeSnippet(snippet);
+    });
+
+    const performUnifiedSearchCommand = vscode.commands.registerCommand('ai-assistant.performUnifiedSearch', async () => {
+        const query = await vscode.window.showInputBox({
+            prompt: 'Enter search query for unified search (semantic + web + RAG)',
+            placeHolder: 'e.g., "React hooks best practices"'
+        });
+
+        if (query) {
+            // Focus search dashboard and trigger search
+            await vscode.commands.executeCommand('ai-assistant.searchDashboard.focus');
+            // The search will be handled by the webview
+        }
+    });
+
     context.subscriptions.push(
         openChatCommand,
         generateCodeCommand,
         semanticSearchCommand,
         reasoningCommand,
-        pocketFlowBridge
+        openSearchDashboardCommand,
+        insertCodeSnippetCommand,
+        performUnifiedSearchCommand,
+        pocketFlowBridge,
+        chatProvider,
+        searchDashboardProvider
     );
 
     // Show activation message
-    vscode.window.showInformationMessage('AI Assistant extension activated with PocketFlow integration!');
+    vscode.window.showInformationMessage('AI Assistant extension activated with advanced UI components!');
 }
 
 async function initializeBackendServices(context: vscode.ExtensionContext) {
@@ -463,9 +505,30 @@ function getAIChatHtml(): string {
     </html>`;
 }
 
+async function insertCodeSnippet(snippet: any): Promise<void> {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+        vscode.window.showWarningMessage('No active editor found');
+        return;
+    }
+
+    const position = editor.selection.active;
+    await editor.edit(editBuilder => {
+        editBuilder.insert(position, snippet.code || snippet);
+    });
+
+    vscode.window.showInformationMessage('Code snippet inserted successfully');
+}
+
 export function deactivate() {
     console.log('AI Assistant extension is now deactivated!');
     if (pocketFlowBridge) {
         pocketFlowBridge.dispose();
+    }
+    if (chatProvider) {
+        chatProvider.dispose();
+    }
+    if (searchDashboardProvider) {
+        searchDashboardProvider.dispose();
     }
 }

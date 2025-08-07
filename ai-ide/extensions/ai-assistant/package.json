@@ -15,24 +15,70 @@
       {
         "command": "ai-assistant.openChat",
         "title": "Open AI Chat",
-        "category": "AI Assistant"
+        "category": "AI Assistant",
+        "icon": "$(comment-discussion)"
       },
       {
         "command": "ai-assistant.generateCode",
         "title": "Generate Code from Selection",
-        "category": "AI Assistant"
+        "category": "AI Assistant",
+        "icon": "$(code)"
       },
       {
         "command": "ai-assistant.semanticSearch",
         "title": "Semantic Search",
-        "category": "AI Assistant"
+        "category": "AI Assistant",
+        "icon": "$(search)"
       },
       {
         "command": "ai-assistant.reasoning",
         "title": "AI Reasoning",
+        "category": "AI Assistant",
+        "icon": "$(lightbulb)"
+      },
+      {
+        "command": "ai-assistant.openSearchDashboard",
+        "title": "Open Search & Dashboard",
+        "category": "AI Assistant",
+        "icon": "$(dashboard)"
+      },
+      {
+        "command": "ai-assistant.performUnifiedSearch",
+        "title": "Unified Search (Semantic + Web + RAG)",
+        "category": "AI Assistant",
+        "icon": "$(search-fuzzy)"
+      },
+      {
+        "command": "ai-assistant.insertCodeSnippet",
+        "title": "Insert Code Snippet",
         "category": "AI Assistant"
       }
     ],
+    "views": {
+      "ai-assistant": [
+        {
+          "type": "webview",
+          "id": "ai-assistant.chatView",
+          "name": "AI Chat",
+          "when": "true"
+        },
+        {
+          "type": "webview",
+          "id": "ai-assistant.searchDashboard",
+          "name": "Search & Dashboard",
+          "when": "true"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "ai-assistant",
+          "title": "AI Assistant",
+          "icon": "$(robot)"
+        }
+      ]
+    },
     "keybindings": [
       {
         "command": "ai-assistant.openChat",
@@ -49,8 +95,48 @@
         "command": "ai-assistant.semanticSearch",
         "key": "ctrl+shift+s",
         "mac": "cmd+shift+s"
+      },
+      {
+        "command": "ai-assistant.reasoning",
+        "key": "ctrl+shift+r",
+        "mac": "cmd+shift+r"
+      },
+      {
+        "command": "ai-assistant.openSearchDashboard",
+        "key": "ctrl+shift+d",
+        "mac": "cmd+shift+d"
+      },
+      {
+        "command": "ai-assistant.performUnifiedSearch",
+        "key": "ctrl+shift+f",
+        "mac": "cmd+shift+f"
       }
-    ]
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "ai-assistant.generateCode",
+          "when": "editorHasSelection",
+          "group": "ai-assistant"
+        },
+        {
+          "command": "ai-assistant.reasoning",
+          "group": "ai-assistant"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "ai-assistant.openChat",
+          "when": "view == ai-assistant.chatView",
+          "group": "navigation"
+        },
+        {
+          "command": "ai-assistant.openSearchDashboard",
+          "when": "view == ai-assistant.searchDashboard",
+          "group": "navigation"
+        }
+      ]
+    }
   },
   "scripts": {
     "compile": "tsc -p ./",

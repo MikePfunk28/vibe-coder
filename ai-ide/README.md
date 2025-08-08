@@ -16,6 +16,7 @@ AI IDE is a revolutionary development environment built on the complete VSCode O
 - **Semantic Similarity Search**: Find code patterns intelligently
 - **Web Search Integration**: Real-time information retrieval with Playwright
 - **RAG System**: Retrieval-Augmented Generation for enhanced responses
+- **Persistent Memory Stores**: MongoDB Atlas, Airtable, and Pinecone connectors for long-term context
 - **Interleaved Context Windows**: Apple's advanced context management
 
 ### ⚡ **Intelligent Code Assistance**
@@ -110,10 +111,22 @@ AI IDE (Built on VSCode OSS)
    ```bash
    # Build complete AI IDE with all features
    npm run build
-   
+
    # Build for all platforms
    npm run build:all
    ```
+
+   ```bash
+   # Create a standalone executable for the current platform
+   npm run build:exe
+
+   # Or build executables for all supported platforms
+   npm run build:exe:all
+   ```
+
+   The build commands automatically bundle the complete VSCode OSS base 
+   (thousands of files) into the final package, so no additional manual
+   steps are required to include the editor core.
 
 4. **Development Mode**
    ```bash

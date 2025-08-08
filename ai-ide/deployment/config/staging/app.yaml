@@ -1,0 +1,71 @@
+# AI IDE Staging Configuration
+app:
+  name: "AI IDE"
+  version: "0.1.0"
+  environment: "staging"
+  debug: true
+  log_level: "DEBUG"
+
+database:
+  pool_size: 5
+  max_overflow: 10
+  pool_timeout: 30
+  pool_recycle: 3600
+
+redis:
+  max_connections: 20
+  socket_timeout: 5
+  socket_connect_timeout: 5
+
+ai_models:
+  lm_studio:
+    url: "http://lm-studio-service:1234"
+    timeout: 30
+    max_retries: 3
+  
+  qwen_coder:
+    model_name: "Qwen/Qwen2.5-Coder-3B-Instruct"
+    max_tokens: 4096
+    temperature: 0.1
+
+semantic_search:
+  embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+  vector_dimension: 384
+  similarity_threshold: 0.7
+  max_results: 50
+
+web_search:
+  engines:
+    - google
+    - bing
+    - duckduckgo
+  max_results_per_engine: 10
+  timeout: 10
+  cache_ttl: 3600
+
+rag:
+  chunk_size: 512
+  chunk_overlap: 50
+  max_context_length: 8192
+  rerank_top_k: 10
+
+mcp:
+  server_discovery_timeout: 30
+  tool_execution_timeout: 60
+  max_concurrent_tools: 5
+
+monitoring:
+  metrics_interval: 60
+  alert_thresholds:
+    response_time: 2.0
+    error_rate: 0.05
+    memory_usage: 0.8
+    cpu_usage: 0.8
+
+security:
+  cors_origins:
+    - "https://staging.ai-ide.dev"
+    - "http://localhost:3000"
+  rate_limiting:
+    requests_per_minute: 100
+    burst_size: 20

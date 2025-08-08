@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-ide-websearch
+  namespace: ${NAMESPACE}
+  labels:
+    app: ai-ide-websearch
+    version: ${VERSION}
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ai-ide-websearch
+  template:
+    metadata:
+      labels:
+        app: ai-ide-websearch
+        version: ${VERSION}
+    spec:
+      containers:
+      - name: ai-ide-websearch
+        image: ghcr.io/${GITHUB_REPOSITORY}/ai-ide:${VERSION}-websearch
+        ports:
+        - containerPort: 8001
+        env:
+        - name: REDIS_URL
+          value: "redis://redis-master:6379"
+        - name: AI_IDE_ENV
+          value: "${ENVIRONMENT}"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8001
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"

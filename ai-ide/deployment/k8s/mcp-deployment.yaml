@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-ide-mcp
+  namespace: ${NAMESPACE}
+  labels:
+    app: ai-ide-mcp
+    version: ${VERSION}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai-ide-mcp
+  template:
+    metadata:
+      labels:
+        app: ai-ide-mcp
+        version: ${VERSION}
+    spec:
+      containers:
+      - name: ai-ide-mcp
+        image: ghcr.io/${GITHUB_REPOSITORY}/ai-ide:${VERSION}-backend
+        ports:
+        - containerPort: 8003
+        env:
+        - name: AI_IDE_ENV
+          value: "${ENVIRONMENT}"
+        - name: MCP_SERVER_PORT
+          value: "8003"
+        command: ["python", "mcp_server_framework.py"]
+        volumeMounts:
+        - name: mcp-configs
+          mountPath: /app/mcp_configs
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8003
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8003
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: mcp-configs
+        persistentVolumeClaim:
+          claimName: ai-ide-mcp-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ai-ide-mcp-pvc
+  namespace: ${NAMESPACE}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi

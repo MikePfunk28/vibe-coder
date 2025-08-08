@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-ide-backend
+  namespace: ${NAMESPACE}
+  labels:
+    app: ai-ide-backend
+    version: ${VERSION}
+spec:
+  replicas: ${REPLICAS}
+  selector:
+    matchLabels:
+      app: ai-ide-backend
+  template:
+    metadata:
+      labels:
+        app: ai-ide-backend
+        version: ${VERSION}
+    spec:
+      containers:
+      - name: ai-ide-backend
+        image: ghcr.io/${GITHUB_REPOSITORY}/ai-ide:${VERSION}-backend
+        ports:
+        - containerPort: 8000
+        env:
+        - name: DATABASE_URL
+          value: "postgresql://aiide:$(DATABASE_PASSWORD)@postgres-postgresql:5432/ai_ide"
+        - name: REDIS_URL
+          value: "redis://redis-master:6379"
+        - name: AI_IDE_ENV
+          value: "${ENVIRONMENT}"
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ai-ide-secrets
+              key: database-password
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: ai-ide-secrets
+              key: jwt-secret
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ai-ide-secrets
+              key: openai-api-key
+              optional: true
+        volumeMounts:
+        - name: config
+          mountPath: /app/config
+        - name: data
+          mountPath: /app/data
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+      volumes:
+      - name: config
+        configMap:
+          name: ai-ide-config
+      - name: data
+        persistentVolumeClaim:
+          claimName: ai-ide-data-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ai-ide-data-pvc
+  namespace: ${NAMESPACE}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi

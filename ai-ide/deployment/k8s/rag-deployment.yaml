@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-ide-rag
+  namespace: ${NAMESPACE}
+  labels:
+    app: ai-ide-rag
+    version: ${VERSION}
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ai-ide-rag
+  template:
+    metadata:
+      labels:
+        app: ai-ide-rag
+        version: ${VERSION}
+    spec:
+      containers:
+      - name: ai-ide-rag
+        image: ghcr.io/${GITHUB_REPOSITORY}/ai-ide:${VERSION}-rag
+        ports:
+        - containerPort: 8002
+        env:
+        - name: DATABASE_URL
+          value: "postgresql://aiide:$(DATABASE_PASSWORD)@postgres-postgresql:5432/ai_ide"
+        - name: REDIS_URL
+          value: "redis://redis-master:6379"
+        - name: AI_IDE_ENV
+          value: "${ENVIRONMENT}"
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ai-ide-secrets
+              key: database-password
+        volumeMounts:
+        - name: embeddings
+          mountPath: /app/embeddings
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8002
+          initialDelaySeconds: 60
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8002
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+      volumes:
+      - name: embeddings
+        persistentVolumeClaim:
+          claimName: ai-ide-embeddings-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ai-ide-embeddings-pvc
+  namespace: ${NAMESPACE}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi

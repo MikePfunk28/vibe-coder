@@ -1,0 +1,183 @@
+version: '3.8'
+
+services:
+  # PostgreSQL database with pgvector extension
+  postgres:
+    image: pgvector/pgvector:pg15
+    environment:
+      POSTGRES_DB: ai_ide
+      POSTGRES_USER: aiide
+      POSTGRES_PASSWORD: aiide_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./backend/database/migrations:/docker-entrypoint-initdb.d/migrations
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aiide -d ai_ide"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Main AI IDE backend service
+  ai-ide-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://aiide:aiide_dev@postgres:5432/ai_ide
+      - REDIS_URL=redis://redis:6379
+      - AI_IDE_ENV=development
+      - LM_STUDIO_URL=http://host.docker.internal:1234
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - ai_ide_data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Web search service
+  ai-ide-websearch:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.websearch
+    ports:
+      - "8001:8001"
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - AI_IDE_ENV=development
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # RAG service
+  ai-ide-rag:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.rag
+    ports:
+      - "8002:8002"
+    environment:
+      - DATABASE_URL=postgresql://aiide:aiide_dev@postgres:5432/ai_ide
+      - REDIS_URL=redis://redis:6379
+      - AI_IDE_ENV=development
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - ai_ide_embeddings:/app/embeddings
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # MCP server management service
+  ai-ide-mcp:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8003"
+    environment:
+      - AI_IDE_ENV=development
+      - MCP_SERVER_PORT=8003
+    volumes:
+      - ./backend:/app
+      - mcp_configs:/app/mcp_configs
+    command: ["python", "mcp_server_framework.py"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Monitoring and alerting service
+  ai-ide-monitoring:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8004:8004"
+    environment:
+      - DATABASE_URL=postgresql://aiide:aiide_dev@postgres:5432/ai_ide
+      - REDIS_URL=redis://redis:6379
+      - AI_IDE_ENV=development
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: ["python", "start_monitoring.py"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx reverse proxy
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deployment/nginx.conf:/etc/nginx/nginx.conf
+      - ./deployment/ssl:/etc/nginx/ssl
+    depends_on:
+      - ai-ide-backend
+      - ai-ide-websearch
+      - ai-ide-rag
+      - ai-ide-mcp
+      - ai-ide-monitoring
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
+  redis_data:
+  ai_ide_data:
+  ai_ide_embeddings:
+  mcp_configs:
+
+networks:
+  default:
+    name: ai-ide-network

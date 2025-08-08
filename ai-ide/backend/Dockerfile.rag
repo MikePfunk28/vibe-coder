@@ -1,0 +1,42 @@
+# AI IDE RAG Service Dockerfile
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first for better caching
+COPY requirements.txt .
+
+# Install Python dependencies with RAG specific packages
+RUN pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir \
+    chromadb \
+    faiss-cpu \
+    sentence-transformers \
+    transformers \
+    torch
+
+# Copy application code
+COPY . .
+
+# Create non-root user
+RUN useradd -m -u 1000 aiide && chown -R aiide:aiide /app
+USER aiide
+
+# Expose port
+EXPOSE 8002
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8002/health || exit 1
+
+# Start RAG service
+CMD ["python", "-c", "from rag_system import RAGService; RAGService().start()"]

@@ -1,0 +1,70 @@
+# AI IDE Production Configuration
+app:
+  name: "AI IDE"
+  version: "0.1.0"
+  environment: "production"
+  debug: false
+  log_level: "INFO"
+
+database:
+  pool_size: 20
+  max_overflow: 30
+  pool_timeout: 30
+  pool_recycle: 3600
+
+redis:
+  max_connections: 100
+  socket_timeout: 5
+  socket_connect_timeout: 5
+
+ai_models:
+  lm_studio:
+    url: "http://lm-studio-service:1234"
+    timeout: 60
+    max_retries: 5
+  
+  qwen_coder:
+    model_name: "Qwen/Qwen2.5-Coder-3B-Instruct"
+    max_tokens: 4096
+    temperature: 0.1
+
+semantic_search:
+  embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+  vector_dimension: 384
+  similarity_threshold: 0.75
+  max_results: 100
+
+web_search:
+  engines:
+    - google
+    - bing
+    - duckduckgo
+  max_results_per_engine: 20
+  timeout: 15
+  cache_ttl: 7200
+
+rag:
+  chunk_size: 512
+  chunk_overlap: 50
+  max_context_length: 16384
+  rerank_top_k: 20
+
+mcp:
+  server_discovery_timeout: 60
+  tool_execution_timeout: 120
+  max_concurrent_tools: 10
+
+monitoring:
+  metrics_interval: 30
+  alert_thresholds:
+    response_time: 1.0
+    error_rate: 0.01
+    memory_usage: 0.85
+    cpu_usage: 0.85
+
+security:
+  cors_origins:
+    - "https://ai-ide.dev"
+  rate_limiting:
+    requests_per_minute: 200
+    burst_size: 50

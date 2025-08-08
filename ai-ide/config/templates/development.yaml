@@ -1,0 +1,274 @@
+# AI IDE Development Configuration Template
+# Copy this file to config/development.yaml and customize as needed
+
+# Application settings
+app:
+  name: "AI IDE"
+  version: "0.1.0"
+  environment: "development"
+  debug: true
+  log_level: "DEBUG"
+  host: "localhost"
+  port: 8000
+
+# Database configuration
+database:
+  url: "postgresql://aiide:aiide_dev@localhost:5432/ai_ide"
+  pool_size: 5
+  max_overflow: 10
+  pool_timeout: 30
+  pool_recycle: 3600
+  echo: false  # Set to true for SQL query logging
+
+# Redis cache configuration
+redis:
+  url: "redis://localhost:6379"
+  max_connections: 20
+  socket_timeout: 5
+  socket_connect_timeout: 5
+  decode_responses: true
+
+# AI model configurations
+ai_models:
+  # LM Studio configuration
+  lm_studio:
+    url: "http://localhost:1234"
+    timeout: 30
+    max_retries: 3
+    model_name: "qwen-coder"
+  
+  # Qwen Coder specific settings
+  qwen_coder:
+    model_name: "Qwen/Qwen2.5-Coder-3B-Instruct"
+    max_tokens: 4096
+    temperature: 0.1
+    top_p: 0.9
+    frequency_penalty: 0.0
+    presence_penalty: 0.0
+  
+  # Embedding model for semantic search
+  embedding:
+    model_name: "sentence-transformers/all-MiniLM-L6-v2"
+    device: "cpu"  # or "cuda" if GPU available
+    batch_size: 32
+
+# Agent system configuration
+agents:
+  enabled: true
+  max_concurrent: 3  # Reduced for development
+  timeout: 60
+  auto_start: true
+  
+  # Individual agent settings
+  code_agent:
+    enabled: true
+    max_context: 4096
+    temperature: 0.1
+    timeout: 30
+  
+  search_agent:
+    enabled: true
+    max_results: 20
+    similarity_threshold: 0.7
+    timeout: 15
+  
+  reasoning_agent:
+    enabled: true
+    max_steps: 10
+    mode: "fast"  # Options: fast, deep, chain-of-thought
+    timeout: 45
+  
+  test_agent:
+    enabled: true
+    test_frameworks: ["pytest", "jest", "mocha"]
+    coverage_threshold: 0.8
+
+# Semantic search configuration
+semantic_search:
+  enabled: true
+  embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+  vector_dimension: 384
+  similarity_threshold: 0.7
+  max_results: 50
+  index_batch_size: 100
+  cache_embeddings: true
+
+# Web search configuration
+web_search:
+  enabled: true
+  engines:
+    - name: "duckduckgo"
+      enabled: true
+      timeout: 10
+    - name: "google"
+      enabled: false  # Requires API key
+      api_key: "${GOOGLE_API_KEY}"
+      timeout: 10
+    - name: "bing"
+      enabled: false  # Requires API key
+      api_key: "${BING_API_KEY}"
+      timeout: 10
+  
+  max_results_per_engine: 5
+  cache_ttl: 1800  # 30 minutes
+  user_agent: "AI-IDE/0.1.0"
+
+# RAG (Retrieval-Augmented Generation) configuration
+rag:
+  enabled: true
+  chunk_size: 512
+  chunk_overlap: 50
+  max_context_length: 4096
+  rerank_top_k: 10
+  
+  # Knowledge sources
+  sources:
+    - type: "directory"
+      path: "docs/"
+      extensions: [".md", ".txt", ".rst"]
+    - type: "code"
+      path: "src/"
+      extensions: [".py", ".js", ".ts", ".java", ".cpp"]
+      include_docstrings: true
+    - type: "file"
+      path: "README.md"
+
+# MCP (Model Context Protocol) configuration
+mcp:
+  enabled: true
+  auto_discover: true
+  server_timeout: 30
+  tool_timeout: 60
+  max_concurrent_tools: 3
+  
+  # Built-in MCP servers
+  servers:
+    filesystem:
+      enabled: true
+      auto_approve: ["read", "list"]
+    
+    git:
+      enabled: true
+      auto_approve: ["status", "log", "diff"]
+    
+    web_search:
+      enabled: true
+      auto_approve: ["search"]
+    
+    database:
+      enabled: false  # Enable if needed
+      auto_approve: []
+
+# Performance and resource limits
+performance:
+  max_concurrent_requests: 5  # Reduced for development
+  request_timeout: 30
+  memory_limit: "2GB"
+  cpu_limit: 2
+  
+  # Caching settings
+  cache:
+    enabled: true
+    size_limit: 1000
+    ttl: 3600
+  
+  # Rate limiting
+  rate_limiting:
+    enabled: false  # Disabled for development
+    requests_per_minute: 100
+    burst_size: 20
+
+# Monitoring and logging
+monitoring:
+  enabled: true
+  metrics_interval: 60
+  health_check_interval: 30
+  
+  # Alert thresholds
+  alerts:
+    response_time: 5.0  # seconds
+    error_rate: 0.1     # 10%
+    memory_usage: 0.9   # 90%
+    cpu_usage: 0.9      # 90%
+
+# Logging configuration
+logging:
+  level: "DEBUG"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+  # File logging
+  file:
+    enabled: true
+    path: "logs/ai-ide.log"
+    max_size: "10MB"
+    backup_count: 5
+    rotation: "daily"
+  
+  # Console logging
+  console:
+    enabled: true
+    level: "INFO"
+
+# Security settings
+security:
+  # CORS settings
+  cors:
+    enabled: true
+    origins:
+      - "http://localhost:3000"
+      - "http://127.0.0.1:3000"
+      - "vscode-webview://*"
+    methods: ["GET", "POST", "PUT", "DELETE"]
+    headers: ["Content-Type", "Authorization"]
+  
+  # Authentication (disabled for development)
+  auth:
+    enabled: false
+    jwt_secret: "${JWT_SECRET}"
+    token_expiry: 3600
+  
+  # API keys (use environment variables)
+  api_keys:
+    openai: "${OPENAI_API_KEY}"
+    google: "${GOOGLE_API_KEY}"
+    bing: "${BING_API_KEY}"
+
+# Development-specific settings
+development:
+  # Auto-reload on code changes
+  auto_reload: true
+  
+  # Enable debug endpoints
+  debug_endpoints: true
+  
+  # Mock external services
+  mock_services:
+    enabled: false
+    lm_studio: false
+    web_search: false
+  
+  # Test data
+  test_data:
+    enabled: true
+    sample_code_files: 100
+    sample_embeddings: 1000
+
+# Feature flags
+features:
+  darwin_godel_model: true
+  apple_interleaved_context: true
+  reinforcement_learning: true
+  mini_benchmarking: true
+  multi_agent_coordination: true
+  web_search_integration: true
+  rag_system: true
+  mcp_integration: true
+
+# Environment variables (reference only)
+# Set these in your environment or .env file:
+# - JWT_SECRET: Secret key for JWT tokens
+# - OPENAI_API_KEY: OpenAI API key (optional)
+# - GOOGLE_API_KEY: Google Search API key (optional)
+# - BING_API_KEY: Bing Search API key (optional)
+# - DATABASE_URL: Override database URL
+# - REDIS_URL: Override Redis URL

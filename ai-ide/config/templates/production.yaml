@@ -1,0 +1,402 @@
+# AI IDE Production Configuration Template
+# Copy this file to config/production.yaml and customize as needed
+
+# Application settings
+app:
+  name: "AI IDE"
+  version: "0.1.0"
+  environment: "production"
+  debug: false
+  log_level: "INFO"
+  host: "0.0.0.0"
+  port: 8000
+
+# Database configuration
+database:
+  url: "${DATABASE_URL}"
+  pool_size: 20
+  max_overflow: 30
+  pool_timeout: 30
+  pool_recycle: 3600
+  echo: false
+
+# Redis cache configuration
+redis:
+  url: "${REDIS_URL}"
+  max_connections: 100
+  socket_timeout: 5
+  socket_connect_timeout: 5
+  decode_responses: true
+
+# AI model configurations
+ai_models:
+  # LM Studio configuration
+  lm_studio:
+    url: "${LM_STUDIO_URL}"
+    timeout: 60
+    max_retries: 5
+    model_name: "qwen-coder"
+  
+  # Qwen Coder specific settings
+  qwen_coder:
+    model_name: "Qwen/Qwen2.5-Coder-3B-Instruct"
+    max_tokens: 4096
+    temperature: 0.1
+    top_p: 0.9
+    frequency_penalty: 0.0
+    presence_penalty: 0.0
+  
+  # Embedding model for semantic search
+  embedding:
+    model_name: "sentence-transformers/all-MiniLM-L6-v2"
+    device: "cuda"  # Use GPU in production if available
+    batch_size: 64
+
+# Agent system configuration
+agents:
+  enabled: true
+  max_concurrent: 10
+  timeout: 120
+  auto_start: true
+  
+  # Individual agent settings
+  code_agent:
+    enabled: true
+    max_context: 8192
+    temperature: 0.1
+    timeout: 60
+  
+  search_agent:
+    enabled: true
+    max_results: 100
+    similarity_threshold: 0.75
+    timeout: 30
+  
+  reasoning_agent:
+    enabled: true
+    max_steps: 20
+    mode: "chain-of-thought"
+    timeout: 120
+  
+  test_agent:
+    enabled: true
+    test_frameworks: ["pytest", "jest", "mocha", "junit"]
+    coverage_threshold: 0.85
+
+# Semantic search configuration
+semantic_search:
+  enabled: true
+  embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+  vector_dimension: 384
+  similarity_threshold: 0.75
+  max_results: 100
+  index_batch_size: 500
+  cache_embeddings: true
+
+# Web search configuration
+web_search:
+  enabled: true
+  engines:
+    - name: "google"
+      enabled: true
+      api_key: "${GOOGLE_API_KEY}"
+      timeout: 15
+    - name: "bing"
+      enabled: true
+      api_key: "${BING_API_KEY}"
+      timeout: 15
+    - name: "duckduckgo"
+      enabled: true
+      timeout: 15
+  
+  max_results_per_engine: 20
+  cache_ttl: 7200  # 2 hours
+  user_agent: "AI-IDE/0.1.0"
+
+# RAG (Retrieval-Augmented Generation) configuration
+rag:
+  enabled: true
+  chunk_size: 512
+  chunk_overlap: 50
+  max_context_length: 16384
+  rerank_top_k: 20
+  
+  # Knowledge sources
+  sources:
+    - type: "directory"
+      path: "/app/knowledge/docs/"
+      extensions: [".md", ".txt", ".rst"]
+    - type: "directory"
+      path: "/app/knowledge/code/"
+      extensions: [".py", ".js", ".ts", ".java", ".cpp", ".go", ".rs"]
+      include_docstrings: true
+    - type: "external"
+      url: "${KNOWLEDGE_BASE_URL}"
+      sync_interval: 3600
+
+# MCP (Model Context Protocol) configuration
+mcp:
+  enabled: true
+  auto_discover: true
+  server_timeout: 60
+  tool_timeout: 120
+  max_concurrent_tools: 10
+  
+  # Production MCP servers
+  servers:
+    filesystem:
+      enabled: true
+      auto_approve: ["read", "list"]
+      restricted_paths: ["/etc", "/var", "/sys", "/proc"]
+    
+    git:
+      enabled: true
+      auto_approve: ["status", "log", "diff"]
+    
+    web_search:
+      enabled: true
+      auto_approve: ["search"]
+    
+    database:
+      enabled: true
+      auto_approve: ["select"]
+    
+    github:
+      enabled: true
+      token: "${GITHUB_TOKEN}"
+      auto_approve: ["search", "read"]
+    
+    jira:
+      enabled: true
+      url: "${JIRA_URL}"
+      token: "${JIRA_TOKEN}"
+      auto_approve: ["search", "read"]
+
+# Performance and resource limits
+performance:
+  max_concurrent_requests: 50
+  request_timeout: 120
+  memory_limit: "8GB"
+  cpu_limit: 8
+  
+  # Caching settings
+  cache:
+    enabled: true
+    size_limit: 10000
+    ttl: 7200
+  
+  # Rate limiting
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 200
+    burst_size: 50
+    
+    # Per-user limits
+    per_user:
+      requests_per_minute: 100
+      burst_size: 20
+
+# Monitoring and logging
+monitoring:
+  enabled: true
+  metrics_interval: 30
+  health_check_interval: 15
+  
+  # Alert thresholds
+  alerts:
+    response_time: 2.0  # seconds
+    error_rate: 0.01    # 1%
+    memory_usage: 0.85  # 85%
+    cpu_usage: 0.85     # 85%
+  
+  # External monitoring
+  prometheus:
+    enabled: true
+    port: 9090
+    path: "/metrics"
+  
+  # Health check endpoints
+  health_checks:
+    - name: "database"
+      endpoint: "/health/database"
+      timeout: 5
+    - name: "redis"
+      endpoint: "/health/redis"
+      timeout: 3
+    - name: "ai_models"
+      endpoint: "/health/models"
+      timeout: 10
+
+# Logging configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+  # File logging
+  file:
+    enabled: true
+    path: "/app/logs/ai-ide.log"
+    max_size: "100MB"
+    backup_count: 10
+    rotation: "daily"
+  
+  # Console logging
+  console:
+    enabled: true
+    level: "WARNING"
+  
+  # Structured logging
+  structured:
+    enabled: true
+    format: "json"
+  
+  # Log aggregation
+  aggregation:
+    enabled: true
+    endpoint: "${LOG_AGGREGATION_ENDPOINT}"
+    api_key: "${LOG_AGGREGATION_KEY}"
+
+# Security settings
+security:
+  # CORS settings
+  cors:
+    enabled: true
+    origins:
+      - "https://ai-ide.dev"
+      - "https://*.ai-ide.dev"
+    methods: ["GET", "POST", "PUT", "DELETE"]
+    headers: ["Content-Type", "Authorization"]
+    credentials: true
+  
+  # Authentication
+  auth:
+    enabled: true
+    jwt_secret: "${JWT_SECRET}"
+    token_expiry: 3600
+    refresh_token_expiry: 604800  # 7 days
+    
+    # OAuth providers
+    oauth:
+      github:
+        enabled: true
+        client_id: "${GITHUB_OAUTH_CLIENT_ID}"
+        client_secret: "${GITHUB_OAUTH_CLIENT_SECRET}"
+      
+      google:
+        enabled: true
+        client_id: "${GOOGLE_OAUTH_CLIENT_ID}"
+        client_secret: "${GOOGLE_OAUTH_CLIENT_SECRET}"
+  
+  # API keys
+  api_keys:
+    openai: "${OPENAI_API_KEY}"
+    google: "${GOOGLE_API_KEY}"
+    bing: "${BING_API_KEY}"
+    github: "${GITHUB_TOKEN}"
+  
+  # TLS/SSL
+  tls:
+    enabled: true
+    cert_file: "/app/ssl/cert.pem"
+    key_file: "/app/ssl/key.pem"
+    ca_file: "/app/ssl/ca.pem"
+  
+  # Security headers
+  headers:
+    hsts: true
+    csp: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
+    x_frame_options: "DENY"
+    x_content_type_options: "nosniff"
+
+# High availability settings
+high_availability:
+  enabled: true
+  
+  # Load balancing
+  load_balancer:
+    algorithm: "round_robin"
+    health_check_interval: 30
+    failure_threshold: 3
+  
+  # Circuit breaker
+  circuit_breaker:
+    enabled: true
+    failure_threshold: 5
+    recovery_timeout: 60
+    half_open_max_calls: 3
+  
+  # Graceful shutdown
+  graceful_shutdown:
+    enabled: true
+    timeout: 30
+    wait_for_connections: true
+
+# Backup and disaster recovery
+backup:
+  enabled: true
+  
+  # Database backups
+  database:
+    enabled: true
+    schedule: "0 2 * * *"  # Daily at 2 AM
+    retention_days: 30
+    storage: "${BACKUP_STORAGE_URL}"
+  
+  # Configuration backups
+  config:
+    enabled: true
+    schedule: "0 1 * * *"  # Daily at 1 AM
+    retention_days: 7
+
+# Scaling configuration
+scaling:
+  # Auto-scaling
+  auto_scaling:
+    enabled: true
+    min_instances: 2
+    max_instances: 10
+    target_cpu_utilization: 70
+    target_memory_utilization: 80
+  
+  # Horizontal pod autoscaler (Kubernetes)
+  hpa:
+    enabled: true
+    min_replicas: 2
+    max_replicas: 10
+    target_cpu: 70
+    target_memory: 80
+
+# Feature flags
+features:
+  darwin_godel_model: true
+  apple_interleaved_context: true
+  reinforcement_learning: true
+  mini_benchmarking: true
+  multi_agent_coordination: true
+  web_search_integration: true
+  rag_system: true
+  mcp_integration: true
+  advanced_reasoning: true
+  performance_monitoring: true
+  security_scanning: true
+
+# Environment variables (reference only)
+# Set these in your production environment:
+# - DATABASE_URL: PostgreSQL connection string
+# - REDIS_URL: Redis connection string
+# - LM_STUDIO_URL: LM Studio API endpoint
+# - JWT_SECRET: Secret key for JWT tokens
+# - OPENAI_API_KEY: OpenAI API key
+# - GOOGLE_API_KEY: Google Search API key
+# - BING_API_KEY: Bing Search API key
+# - GITHUB_TOKEN: GitHub API token
+# - JIRA_URL: Jira instance URL
+# - JIRA_TOKEN: Jira API token
+# - GITHUB_OAUTH_CLIENT_ID: GitHub OAuth client ID
+# - GITHUB_OAUTH_CLIENT_SECRET: GitHub OAuth client secret
+# - GOOGLE_OAUTH_CLIENT_ID: Google OAuth client ID
+# - GOOGLE_OAUTH_CLIENT_SECRET: Google OAuth client secret
+# - LOG_AGGREGATION_ENDPOINT: Log aggregation service endpoint
+# - LOG_AGGREGATION_KEY: Log aggregation API key
+# - BACKUP_STORAGE_URL: Backup storage location
+# - KNOWLEDGE_BASE_URL: External knowledge base URL

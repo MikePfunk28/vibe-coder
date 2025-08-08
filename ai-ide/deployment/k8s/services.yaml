@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-ide-backend-service
+  labels:
+    app: ai-ide-backend
+spec:
+  selector:
+    app: ai-ide-backend
+  ports:
+  - port: 80
+    targetPort: 8000
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-ide-websearch-service
+  labels:
+    app: ai-ide-websearch
+spec:
+  selector:
+    app: ai-ide-websearch
+  ports:
+  - port: 80
+    targetPort: 8001
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-ide-rag-service
+  labels:
+    app: ai-ide-rag
+spec:
+  selector:
+    app: ai-ide-rag
+  ports:
+  - port: 80
+    targetPort: 8002
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-ide-mcp-service
+  labels:
+    app: ai-ide-mcp
+spec:
+  selector:
+    app: ai-ide-mcp
+  ports:
+  - port: 80
+    targetPort: 8003
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-ide-monitoring-service
+  labels:
+    app: ai-ide-monitoring
+spec:
+  selector:
+    app: ai-ide-monitoring
+  ports:
+  - port: 80
+    targetPort: 8004
+    protocol: TCP
+  type: ClusterIP

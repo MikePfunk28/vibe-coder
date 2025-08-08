@@ -1,8 +1,8 @@
 # 🤖 AI IDE - Advanced AI-Powered Development Environment
 
-**The Ultimate VSCode, GitHub Copilot, Cursor, and Windsurf Competitor**
+**Built on VSCode OSS - The Ultimate Cursor and Windsurf Competitor**
 
-AI IDE is a revolutionary development environment that combines the power of VSCodium with cutting-edge AI technologies to create the most advanced coding assistant available.
+AI IDE is a revolutionary development environment built on the complete VSCode OSS codebase, enhanced with cutting-edge AI technologies. Just like Cursor, we use the full VSCode foundation but add comprehensive AI capabilities that surpass existing solutions.
 
 ## 🚀 Features
 
@@ -41,13 +41,21 @@ AI IDE is a revolutionary development environment that combines the power of VSC
 ## 🏗️ Architecture
 
 ```
-AI IDE
-├── Frontend (Electron + Monaco Editor)
-│   ├── Complete IDE Interface
+AI IDE (Built on VSCode OSS)
+├── VSCode OSS Foundation (Complete IDE)
+│   ├── Full VSCode Editor & UI
+│   ├── Extension System
+│   ├── Terminal Integration
+│   ├── File Management
+│   ├── Git Integration
+│   └── All VSCode Features
+├── AI Enhancement Layer
+│   ├── Built-in AI Extensions
 │   ├── Multi-Agent Chat System
 │   ├── Advanced Search Dashboard
-│   └── Real-time Code Assistance
-├── Backend (Python + FastAPI)
+│   ├── Semantic Code Analysis
+│   └── Real-time AI Assistance
+├── AI Backend (Python + FastAPI)
 │   ├── Multi-Agent AI System
 │   ├── Playwright Web Automation
 │   ├── RAG Pipeline
@@ -55,9 +63,9 @@ AI IDE
 │   ├── Darwin-Gödel Self-Improvement
 │   └── Reinforcement Learning
 └── Integration Layer
+    ├── VSCode API Integration
     ├── LangChain Orchestration
     ├── MCP Protocol Support
-    ├── Tool Chain Management
     └── Context Management
 ```
 
@@ -85,43 +93,59 @@ AI IDE
 
 ### Quick Start
 
-1. **Clone and Install**
+1. **Clone and Setup**
    ```bash
    git clone https://github.com/your-username/ai-ide.git
    cd ai-ide
    npm run install:all
    ```
 
-2. **Build Executable**
+2. **Setup VSCode OSS Base**
    ```bash
-   # Build for current platform
-   npm run build-exe
-   
-   # Build for all platforms
-   npm run build-exe:all
+   # This downloads and configures VSCode OSS as the foundation
+   npm run setup
    ```
 
-3. **Development Mode**
+3. **Build AI IDE**
    ```bash
+   # Build complete AI IDE with all features
+   npm run build
+   
+   # Build for all platforms
+   npm run build:all
+   ```
+
+4. **Development Mode**
+   ```bash
+   # Run AI IDE in development mode
    npm run dev
+   
+   # Run backend separately
+   npm run dev:backend
    ```
 
 ### Build Commands
 
 ```bash
-# Complete executable build
-npm run build-exe
+# Setup VSCode OSS foundation (run once)
+npm run setup
 
-# Build for all platforms
-npm run build-exe:all
-
-# Development build
+# Build AI IDE with all features
 npm run build
 
-# Package only
+# Build for all platforms
+npm run build:all
+
+# Package executables
 npm run package
 
-# Clean build
+# Package for all platforms
+npm run package:all
+
+# Complete distribution build
+npm run dist
+
+# Clean all builds
 npm run clean
 ```
 

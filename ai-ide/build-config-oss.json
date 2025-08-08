@@ -1,0 +1,77 @@
+{
+  "name": "AI IDE",
+  "description": "Advanced AI-Powered Development Environment based on VSCode OSS",
+  "version": "1.0.0",
+  "baseVersion": "1.85.0",
+  "
+": {
+    "nameShort": "AI IDE",
+    "nameLong": "AI IDE - Advanced AI-Powered Development Environment",
+    "applicationName": "ai-ide",
+    "dataFolderName": ".ai-ide",
+    "serverDataFolderName": ".ai-ide-server",
+    "downloadUrl": "https://github.com/your-username/ai-ide",
+    "updateUrl": "https://github.com/your-username/ai-ide/releases",
+    "webUrl": "https://ai-ide.dev",
+    "documentationUrl": "https://docs.ai-ide.dev"
+  },
+  "aiFeatures": {
+    "enableAI": true,
+    "enableWebSearch": true,
+    "enablePlaywright": true,
+    "enableMultiAgent": true,
+    "enableSemanticSearch": true,
+    "enableRAG": true,
+    "enableDarwinGodel": true,
+    "enableReinforcementLearning": true,
+    "defaultAIProvider": "lm-studio",
+    "backendPort": 8000
+  },
+  "buildTargets": {
+    "win32": {
+      "arch": ["x64", "arm64"],
+      "formats": ["nsis", "portable", "zip"]
+    },
+    "darwin": {
+      "arch": ["x64", "arm64"],
+      "formats": ["dmg", "zip"]
+    },
+    "linux": {
+      "arch": ["x64", "arm64"],
+      "formats": ["AppImage", "deb", "rpm", "tar.gz"]
+    }
+  },
+  "extensions": {
+    "builtin": [
+      "ai-assistant",
+      "ai-chat",
+      "ai-semantic-search",
+      "ai-web-search",
+      "ai-reasoning",
+      "ai-multi-agent"
+    ],
+    "marketplace": {
+      "serviceUrl": "https://marketplace.visualstudio.com/_apis/public/gallery",
+      "cacheUrl": "https://vscode.blob.core.windows.net/gallery/index",
+      "itemUrl": "https://marketplace.visualstudio.com/items"
+    }
+  },
+  "backend": {
+    "language": "python",
+    "framework": "fastapi",
+    "port": 8000,
+    "features": [
+      "multi-agent-system",
+      "semantic-search",
+      "web-automation",
+      "rag-pipeline",
+      "darwin-godel-model",
+      "reinforcement-learning"
+    ]
+  },
+  "dependencies": {
+    "node": ">=18.0.0",
+    "python": ">=3.11.0",
+    "yarn": ">=1.22.0"
+  }
+}

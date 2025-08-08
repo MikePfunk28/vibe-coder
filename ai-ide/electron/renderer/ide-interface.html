@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI IDE - Advanced AI-Powered Development Environment</title>
+    <link rel="stylesheet" href="ide-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/editor/editor.main.min.css">
+</head>
+<body>
+    <div id="app" class="ide-container">
+        <!-- Menu Bar -->
+        <div class="menu-bar">
+            <div class="menu-item" data-menu="file">
+                <span>File</span>
+                <div class="dropdown-menu" id="file-menu">
+                    <div class="menu-option" data-action="new-file">New File <span class="shortcut">Ctrl+N</span></div>
+                    <div class="menu-option" data-action="new-folder">New Folder</div>
+                    <div class="menu-separator"></div>
+                    <div class="menu-option" data-action="open-file">Open File... <span class="shortcut">Ctrl+O</span></div>
+                    <div class="menu-option" data-action="open-folder">Open Folder... <span class="shortcut">Ctrl+K Ctrl+O</span></div>
+                    <div class="menu-option" data-action="open-workspace">Open Workspace...</div>
+                    <div class="menu-separator"></div>
+                    <div class="menu-option" data-action="save">Save <span class="shortcut">Ctrl+S</span></div>
+                    <div class="menu-option" data-action="save-as">Save As... <span class="shortcut">Ctrl+Shift+S</span></div>
+                    <div class="menu-option" data-action="save-all">Save All <span class="shortcut">Ctrl+K S</span></div>
+                    <div class="menu-separator"></div>
+                    <div class="menu-option" data-action="close-file">Close File <span class="shortcut">Ctrl+W</span></div>
+                    <div class="menu-option" data-action="close-folder">Close Folder</div>
+                    <div class="menu-separator"></div>
+                    <div class="menu-option" data-action="exit">Exit <span class="shortcut">Alt+F4</span></div>
+                </div>
+            </div>
+            
+            <div class="menu-item" data-menu="edit">
+                <span>Edit</span>
+                <div class="dropdown-menu" id="edit-menu">
+                    <div class="menu-option" data-action="undo">Undo <span class="shortcut">Ctrl+Z</span></div>
+                    <div class="menu-option" data-action="redo">Redo <span class="shortcut">Ctrl+Y</span></div>
+                    <div class="menu-separator"></div>
+                    <div class="menu-option" data-action="cut">Cut <span class="shortcut">Ctrl+X</span></div>
+                    <div class="menu-option" data-action="copy">Copy <span class="shortcut">Ctrl+C</span></div>
+                    <div class="menu-option" data-action="paste">Paste <span class="shortcut">Ctrl+V</span></div>
+                    <div class="menu-separator"></div>
+                    <div class="menu-option" data-action="find">Find <span class="shortcut">Ctrl+F</span></div>
+                    <div class="menu-option" data-action="replace">Replace <span class="shortcut">Ctrl+H</span></div>
+                    <div class="menu-option" data-action="find-in-files">Find in Files <span class="shortcut">Ctrl+Shift+F</span></div>
+                    <div class="menu-separator"></div>
+                    <div class="menu-option" data-action="select-all">Select All <span class="shortcut">Ctrl+A</span></div>
+                </div>
+            </div>
+            
+            <div class="menu-item" data-menu="view">
+                <span>View</span>
+                <div class="dropdown-menu" id="view-menu">
+                    <div class="menu-option" data-action="command-palette">Command Palette... <span class="shortcut">Ctrl+Shift+P</span></div>
+                    <div class="menu-separator"></div>
+                    <div class="menu-option" data-action="toggle-sidebar">Toggle Sidebar <span class="shortcut">Ctrl+B</span></div>
+                    <div class="menu-option" data-action="toggle-panel">Toggle Panel <span class="shortcut">Ctrl+J</span></div>
+                    <div class="menu-option" data-action="toggle-terminal">Toggle Terminal <span class="shortcut">Ctrl+`</span></div>
+                    <div class="menu-separator"></div>
+                    <div class="menu-option" data-action="zoom-in">Zoom In <span class="shortcut">Ctrl+=</span></div>
+                    <div class="menu-option" data-action="zoom-out">Zoom Out <span class="shortcut">Ctrl+-</span></div>
+                    <div class="menu-option" data-action="reset-zoom">Reset Zoom <span class="shortcut">Ctrl+0</span></div>
+                    <div class="menu-separator"></div>
+                    <div class="menu-option" data-action="fullscreen">Toggle Fullscreen <span class="shortcut">F11</span></div>
+                </div>
+            </div>
+            
+            <div class="menu-item" data-menu="ai">
+                <span>AI</span>
+                <div class="dropdown-menu" id="ai-menu">
+                    <div class="menu-option" data-action="ai-chat">AI Chat <span class="shortcut">Ctrl+Shift+A</span></div>
+                    <div class="menu-option" data-action="ai-generate">Generate Code <span class="shortcut">Ctrl+Shift+G</span></div>
+                    <div class="menu-option" data-action="ai-explain">Explain Code <span class="shortcut">Ctrl+Shift+E</span></div>
+                    <div class="menu-option" data-action="ai-refactor">Refactor Code <span class="shortcut">Ctrl+Shift+R</span></div>
+                    <div class="menu-separator"></div>
+                    <div class="menu-option" data-action="semantic-search">Semantic Search <span class="shortcut">Ctrl+Shift+S</span></div>
+                    <div class="menu-option" data-action="web-search">Web Search <span class="shortcut">Ctrl+Shift+W</span></div>
+                    <div class="menu-option" data-action="reasoning-mode">Reasoning Mode <span class="shortcut">Ctrl+Shift+T</span></div>
+                    <div class="menu-separator"></div>
+                    <div class="menu-option" data-action="agent-selector">Select Agent...</div>
+                    <div class="menu-option" data-action="ai-settings">AI Settings...</div>
+                </div>
+            </div>
+            
+            <div class="menu-item" data-menu="run">
+                <span>Run</span>
+                <div class="dropdown-menu" id="run-menu">
+                    <div class="menu-option" data-action="run-file">Run File <span class="shortcut">Ctrl+F5</span></div>
+                    <div class="menu-option" data-action="debug-file">Debug File <span class="shortcut">F5</span></div>
+                    <div class="menu-separator"></div>
+                    <div class="menu-option" data-action="run-task">Run Task...</div>
+                    <div class="menu-option" data-action="configure-tasks">Configure Tasks...</div>
+                    <div class="menu-separator"></div>
+                    <div class="menu-option" data-action="start-debugging">Start Debugging <span class="shortcut">F5</span></div>
+                    <div class="menu-option" data-action="stop-debugging">Stop Debugging <span class="shortcut">Shift+F5</span></div>
+                </div>
+            </div>
+            
+            <div class="menu-item" data-menu="help">
+                <span>Help</span>
+                <div class="dropdown-menu" id="help-menu">
+                    <div class="menu-option" data-action="welcome">Welcome</div>
+                    <div class="menu-option" data-action="documentation">Documentation</div>
+                    <div class="menu-option" data-action="keyboard-shortcuts">Keyboard Shortcuts</div>
+                    <div class="menu-separator"></div>
+                    <div class="menu-option" data-action="check-updates">Check for Updates...</div>
+                    <div class="menu-option" data-action="about">About AI IDE</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main IDE Layout -->
+        <div class="ide-layout">
+            <!-- Activity Bar -->
+            <div class="activity-bar">
+                <div class="activity-item active" data-view="explorer" title="Explorer">
+                    <i class="icon-files"></i>
+                </div>
+                <div class="activity-item" data-view="search" title="Search">
+                    <i class="icon-search"></i>
+                </div>
+                <div class="activity-item" data-view="ai-chat" title="AI Chat">
+                    <i class="icon-robot"></i>
+                </div>
+                <div class="activity-item" data-view="extensions" title="Extensions">
+                    <i class="icon-extensions"></i>
+                </div>
+                <div class="activity-item" data-view="debug" title="Debug">
+                    <i class="icon-debug"></i>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Explorer Panel -->
+                <div class="panel" id="explorer-panel">
+                    <div class="panel-header">
+                        <h3>Explorer</h3>
+                        <div class="panel-actions">
+                            <button class="action-btn" data-action="new-file" title="New File">+</button>
+                            <button class="action-btn" data-action="new-folder" title="New Folder">📁</button>
+                            <button class="action-btn" data-action="refresh" title="Refresh">🔄</button>
+                        </div>
+                    </div>
+                    <div class="file-tree" id="file-tree">
+                        <!-- File tree will be populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- AI Chat Panel -->
+                <div class="panel hidden" id="ai-chat-panel">
+                    <div class="panel-header">
+                        <h3>AI Assistant</h3>
+                        <div class="panel-actions">
+                            <select id="agent-selector" class="agent-select">
+                                <option value="general">General Agent</option>
+                                <option value="code">Code Agent</option>
+                                <option value="search">Search Agent</option>
+                                <option value="reasoning">Reasoning Agent</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chat-messages"></div>
+                        <div class="chat-input-container">
+                            <textarea id="chat-input" placeholder="Ask AI anything..." rows="3"></textarea>
+                            <button id="send-chat" class="send-btn">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Editor Area -->
+            <div class="editor-area">
+                <!-- Tab Bar -->
+                <div class="tab-bar" id="tab-bar">
+                    <!-- Tabs will be added dynamically -->
+                </div>
+                
+                <!-- Editor Container -->
+                <div class="editor-container">
+                    <div id="monaco-editor" class="monaco-editor-container"></div>
+                    <div class="welcome-screen" id="welcome-screen">
+                        <div class="welcome-content">
+                            <h1>🤖 AI IDE</h1>
+                            <p>Advanced AI-Powered Development Environment</p>
+                            <div class="welcome-actions">
+                                <button class="welcome-btn" data-action="open-folder">Open Folder</button>
+                                <button class="welcome-btn" data-action="new-file">New File</button>
+                                <button class="welcome-btn" data-action="ai-chat">Start AI Chat</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Panel -->
+        <div class="bottom-panel">
+            <!-- Terminal -->
+            <div class="terminal-container" id="terminal-container">
+                <div class="terminal-header">
+                    <span>Terminal</span>
+                    <div class="terminal-actions">
+                        <button class="action-btn" data-action="new-terminal">+</button>
+                        <button class="action-btn" data-action="clear-terminal">Clear</button>
+                    </div>
+                </div>
+                <div class="terminal" id="terminal"></div>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-left">
+                <span id="cursor-position">Ln 1, Col 1</span>
+                <span id="file-encoding">UTF-8</span>
+                <span id="file-type">Plain Text</span>
+            </div>
+            <div class="status-right">
+                <span id="ai-status">AI Ready</span>
+                <span id="git-branch">main</span>
+                <span id="notifications">🔔</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menus -->
+    <div class="context-menu" id="file-context-menu">
+        <div class="menu-option" data-action="open">Open</div>
+        <div class="menu-option" data-action="rename">Rename</div>
+        <div class="menu-option" data-action="delete">Delete</div>
+        <div class="menu-separator"></div>
+        <div class="menu-option" data-action="copy-path">Copy Path</div>
+        <div class="menu-option" data-action="reveal-in-explorer">Reveal in Explorer</div>
+    </div>
+
+    <!-- Command Palette -->
+    <div class="command-palette" id="command-palette">
+        <input type="text" id="command-input" placeholder="Type a command...">
+        <div class="command-results" id="command-results"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+    <script src="ide-app.js"></script>
+</body>
+</html>

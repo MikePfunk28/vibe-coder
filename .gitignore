@@ -250,6 +250,9 @@ public
 !docs/
 !utils/
 vscode-fork/
+
+# AI IDE Build Directory (VSCode OSS fork - too large for git)
+ai-ide/ai-ide-build/
 src/vs/amdX.ts
 src/vs/loader.js
 src/vs/monaco.d.ts

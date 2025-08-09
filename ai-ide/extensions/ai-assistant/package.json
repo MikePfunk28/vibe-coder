@@ -13,8 +13,20 @@
   "contributes": {
     "commands": [
       {
+        "command": "ai-assistant.inlineGeneration",
+        "title": "Inline Code Generation (Ctrl+K)",
+        "category": "AI Assistant",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "ai-assistant.editSelection",
+        "title": "Edit Selection with AI (Ctrl+K)",
+        "category": "AI Assistant",
+        "icon": "$(edit)"
+      },
+      {
         "command": "ai-assistant.openChat",
-        "title": "Open AI Chat",
+        "title": "Open AI Chat (Ctrl+L)",
         "category": "AI Assistant",
         "icon": "$(comment-discussion)"
       },
@@ -81,9 +93,21 @@
     },
     "keybindings": [
       {
+        "command": "ai-assistant.inlineGeneration",
+        "key": "ctrl+k",
+        "mac": "cmd+k",
+        "when": "editorTextFocus"
+      },
+      {
         "command": "ai-assistant.openChat",
-        "key": "ctrl+shift+a",
-        "mac": "cmd+shift+a"
+        "key": "ctrl+l",
+        "mac": "cmd+l"
+      },
+      {
+        "command": "ai-assistant.editSelection",
+        "key": "ctrl+k",
+        "mac": "cmd+k",
+        "when": "editorHasSelection"
       },
       {
         "command": "ai-assistant.generateCode",

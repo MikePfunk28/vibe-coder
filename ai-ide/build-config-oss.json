@@ -3,8 +3,7 @@
   "description": "Advanced AI-Powered Development Environment based on VSCode OSS",
   "version": "1.0.0",
   "baseVersion": "1.85.0",
-  "
-": {
+  "branding": {
     "nameShort": "AI IDE",
     "nameLong": "AI IDE - Advanced AI-Powered Development Environment",
     "applicationName": "ai-ide",

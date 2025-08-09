@@ -2,15 +2,24 @@
 
 ## Overview
 
-This design document outlines the architecture for an advanced AI-powered IDE built on VSCodium that integrates multiple cutting-edge AI technologies. The system combines the existing PocketFlow-based coding agent with new capabilities including semantic similarity search, self-improving AI models, and reinforcement learning to create a comprehensive development environment.
+This design document outlines the architecture for an advanced AI-powered IDE built on the complete VSCode/Code-OSS foundation. The system provides 100% VSCode functionality and GUI, then layers advanced AI technologies on top to create a comprehensive development environment that rivals Cursor while maintaining full VSCode compatibility.
 
-The AI IDE will extend the current VSCodium-based architecture with:
-- Enhanced AI code assistance using LM Studio with Qwen Coder 3
-- Semantic similarity search with interleaved context sliding windows
-- Darwin-Gödel self-improving model with code rewriting capabilities
-- Mini-benchmarking system for performance measurement
-- Reinforcement learning for user preference adaptation
-- Tool and MCP integration for extensibility
+**Architecture Philosophy**: 
+- **VSCode/Code-OSS Base**: Complete, unmodified VSCode functionality serves as the foundation
+- **AI Layer**: All AI features are implemented as extensions and enhancements, never replacing core IDE features
+- **Cursor Parity**: All Cursor AI features (Ctrl+K, Ctrl+L, chat, inline editing) are implemented with identical UX
+- **Advanced AI**: Additional cutting-edge AI capabilities beyond what Cursor offers
+
+The AI IDE extends the complete VSCode/Code-OSS foundation with:
+- **Complete VSCode Feature Set**: All standard IDE capabilities (editing, debugging, git, extensions, terminal, etc.)
+- **Cursor-Level AI Features**: Identical AI assistance UX (Ctrl+K inline generation, Ctrl+L chat, code editing)
+- **Enhanced AI Code Assistance**: Using LM Studio with Qwen Coder 3 and multiple AI providers
+- **Semantic Similarity Search**: With interleaved context sliding windows for better code understanding
+- **Darwin-Gödel Self-Improving Model**: Code rewriting and optimization capabilities
+- **Mini-Benchmarking System**: Performance measurement and validation
+- **Reinforcement Learning**: User preference adaptation and personalization
+- **Universal AI Provider Support**: OpenAI, Anthropic, OpenRouter, Ollama, LM Studio, llama.cpp
+- **Tool and MCP Integration**: Extensibility with external tools and services
 
 ## Architecture
 
@@ -18,60 +27,119 @@ The AI IDE will extend the current VSCodium-based architecture with:
 
 ```mermaid
 graph TB
-    subgraph "VSCodium IDE Layer"
-        VSC[VSCodium Core]
-        EXT[AI Extensions]
-        UI[Enhanced UI Components]
+    subgraph "Complete VSCode/Code-OSS Foundation"
+        VSC[VSCode Core - 100% Standard Features]
+        EDIT[Editor + Syntax Highlighting]
+        DEBUG[Debugger + Breakpoints]
+        GIT[Git Integration + Diff Views]
+        TERM[Integrated Terminal]
+        EXT_MKT[Extensions Marketplace]
+        THEMES[Themes + Settings]
+        FILES[File Explorer + Search]
     end
     
-    subgraph "AI Orchestration Layer"
+    subgraph "Cursor-Level AI Extensions Layer"
+        CTRL_K[Ctrl+K Inline Generation]
+        CTRL_L[Ctrl+L AI Chat Panel]
+        AUTOCOMPLETE[AI Autocomplete]
+        CODE_EDIT[AI Code Editing]
+        CONTEXT[Codebase Context Awareness]
+    end
+    
+    subgraph "Universal AI Provider Layer"
+        OPENAI[OpenAI GPT-4/o1]
+        ANTHROPIC[Anthropic Claude]
+        OPENROUTER[OpenRouter Models]
+        OLLAMA[Ollama Local Models]
+        LMS[LM Studio + Qwen Coder 3]
+        LLAMACPP[llama.cpp Integration]
+    end
+    
+    subgraph "Advanced AI Orchestration Layer"
         LC[LangChain Orchestrator]
         PF[PocketFlow Engine]
         CTX[Context Manager]
+        ROUTER[AI Model Router]
     end
     
-    subgraph "AI Models Layer"
-        LMS[LM Studio + Qwen Coder 3]
-        DG[Darwin-Gödel Model]
-        RL[Reinforcement Learning Engine]
-    end
-    
-    subgraph "Intelligence Layer"
+    subgraph "Intelligence Enhancement Layer"
         SEM[Semantic Search Engine]
         ICW[Interleaved Context Windows]
+        DG[Darwin-Gödel Self-Improvement]
+        RL[Reinforcement Learning]
         MB[Mini-Benchmarking System]
     end
     
-    subgraph "Integration Layer"
+    subgraph "Integration & Tools Layer"
         MCP[MCP Servers]
         TOOLS[External Tools]
         API[External APIs]
+        WEB[Web Search Integration]
     end
     
-    subgraph "Data Layer"
-        IDX[Code Index]
+    subgraph "Data & Performance Layer"
+        IDX[Code Index + Embeddings]
         MEM[Context Memory]
         PERF[Performance Metrics]
         USER[User Preferences]
+        CACHE[Response Caching]
     end
     
-    VSC --> EXT
-    EXT --> LC
+    %% VSCode Foundation connections
+    VSC --> EDIT
+    VSC --> DEBUG
+    VSC --> GIT
+    VSC --> TERM
+    VSC --> EXT_MKT
+    VSC --> THEMES
+    VSC --> FILES
+    
+    %% AI Extensions layer on top of VSCode
+    EDIT --> CTRL_K
+    EDIT --> AUTOCOMPLETE
+    CTRL_K --> CODE_EDIT
+    CTRL_L --> CONTEXT
+    
+    %% AI Extensions connect to Universal AI Providers
+    CTRL_K --> ROUTER
+    CTRL_L --> ROUTER
+    AUTOCOMPLETE --> ROUTER
+    CODE_EDIT --> ROUTER
+    
+    %% Router distributes to AI providers
+    ROUTER --> OPENAI
+    ROUTER --> ANTHROPIC
+    ROUTER --> OPENROUTER
+    ROUTER --> OLLAMA
+    ROUTER --> LMS
+    ROUTER --> LLAMACPP
+    
+    %% AI Providers connect to orchestration
+    OPENAI --> LC
+    ANTHROPIC --> LC
+    LMS --> LC
     LC --> PF
     LC --> CTX
-    PF --> LMS
+    
+    %% Advanced intelligence features
     CTX --> SEM
     CTX --> ICW
-    LMS --> DG
+    PF --> DG
     DG --> RL
     RL --> MB
+    
+    %% Data layer connections
     SEM --> IDX
     ICW --> MEM
     MB --> PERF
     RL --> USER
+    ROUTER --> CACHE
+    
+    %% External integrations
     LC --> MCP
     MCP --> TOOLS
     MCP --> API
+    MCP --> WEB
 ```
 
 ### Core Components Integration

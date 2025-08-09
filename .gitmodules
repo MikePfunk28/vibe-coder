@@ -1,0 +1,6 @@
+[submodule "ai-ide/code-oss"]
+	path = ai-ide/code-oss
+	url = ./ai-ide/code-oss
+[submodule "ai-ide/vscodium"]
+	path = ai-ide/vscodium
+	url = ./ai-ide/vscodium

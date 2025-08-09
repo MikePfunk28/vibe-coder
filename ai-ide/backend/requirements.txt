@@ -22,6 +22,9 @@ psycopg2-binary==2.9.9
 redis==5.0.1
 chromadb==0.4.18
 faiss-cpu==1.7.4
+pymongo==4.5.0
+pyairtable==1.3.3
+pinecone-client==2.2.2
 
 # Web scraping and automation
 playwright==1.40.0

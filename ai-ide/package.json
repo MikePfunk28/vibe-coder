@@ -29,6 +29,8 @@
     "setup": "node setup-code-oss.js",
     "build": "node build-ai-ide.js",
     "build:all": "node build-ai-ide.js --all-platforms",
+    "build:exe": "node build-exe.js build",
+    "build:exe:all": "node build-exe.js build-all",
     "dev": "cd ai-ide-build && yarn run watch",
     "dev:backend": "cd backend && python main.py",
     "test": "npm run test:backend && npm run test:extension",

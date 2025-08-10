@@ -69,7 +69,6 @@
 
   - [x] 3.2 Integrate existing model installer system
 
-
     - Connect existing model_installer.py to VSCode setup process
     - Add one-click model installation from VSCode interface
     - Create model management UI for installed models

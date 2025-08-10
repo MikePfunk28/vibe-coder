@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI IDE - VSCode Alternative</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/editor/editor.main.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: #2d2d30;
+            padding: 10px 20px;
+            border-bottom: 1px solid #3e3e42;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header h1 {
+            color: #007acc;
+            font-size: 18px;
+        }
+        
+        .status {
+            font-size: 12px;
+            color: #cccccc;
+        }
+        
+        .main-container {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 60px);
+        }
+        
+        .sidebar {
+            width: 300px;
+            background: #252526;
+            border-right: 1px solid #3e3e42;
+            padding: 20px;
+        }
+        
+        .editor-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .tabs {
+            background: #2d2d30;
+            border-bottom: 1px solid #3e3e42;
+            padding: 0 10px;
+            display: flex;
+            align-items: center;
+            min-height: 35px;
+        }
+        
+        .tab {
+            background: #2d2d30;
+            border: none;
+            color: #cccccc;
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 3px 3px 0 0;
+            margin-right: 2px;
+        }
+        
+        .tab.active {
+            background: #1e1e1e;
+            color: #ffffff;
+        }
+        
+        #editor {
+            flex: 1;
+        }
+        
+        .ai-panel {
+            width: 350px;
+            background: #252526;
+            border-left: 1px solid #3e3e42;
+            display: none;
+            flex-direction: column;
+        }
+        
+        .ai-panel.show {
+            display: flex;
+        }
+        
+        .ai-header {
+            background: #2d2d30;
+            padding: 15px;
+            border-bottom: 1px solid #3e3e42;
+        }
+        
+        .ai-content {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+        }
+        
+        .ai-input {
+            padding: 15px;
+            border-top: 1px solid #3e3e42;
+        }
+        
+        .ai-input input {
+            width: 100%;
+            background: #3c3c3c;
+            border: 1px solid #5a5a5a;
+            color: #d4d4d4;
+            padding: 10px;
+            border-radius: 3px;
+        }
+        
+        .ai-message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .ai-message.user {
+            background: #0e639c;
+            margin-left: 20px;
+        }
+        
+        .ai-message.ai {
+            background: #2d2d30;
+            margin-right: 20px;
+        }
+        
+        .file-tree {
+            color: #cccccc;
+        }
+        
+        .file-item {
+            padding: 5px 0;
+            cursor: pointer;
+            border-radius: 3px;
+            padding-left: 10px;
+        }
+        
+        .file-item:hover {
+            background: #2a2d2e;
+        }
+        
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+        }
+        
+        .welcome-screen h2 {
+            color: #007acc;
+            margin-bottom: 20px;
+        }
+        
+        .feature-list {
+            list-style: none;
+            margin: 20px 0;
+        }
+        
+        .feature-list li {
+            margin: 10px 0;
+            padding: 10px;
+            background: #2d2d30;
+            border-radius: 5px;
+        }
+        
+        .shortcut {
+            background: #0e639c;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 AI IDE - VSCode Alternative with AI Superpowers</h1>
+        <div class="status">Ready • AI Features Active</div>
+    </div>
+    
+    <div class="main-container">
+        <div class="sidebar">
+            <h3>📁 Explorer</h3>
+            <div class="file-tree">
+                <div class="file-item" onclick="createNewFile()">📄 New File</div>
+                <div class="file-item" onclick="openFile()">📂 Open File</div>
+                <div class="file-item" onclick="openFolder()">📁 Open Folder</div>
+            </div>
+            
+            <h3 style="margin-top: 30px;">🤖 AI Features</h3>
+            <div class="file-tree">
+                <div class="file-item" onclick="aiGenerate()">✨ Generate Code (Ctrl+K)</div>
+                <div class="file-item" onclick="toggleAiChat()">💬 AI Chat (Ctrl+L)</div>
+                <div class="file-item" onclick="aiExplain()">🔍 Explain Code (Ctrl+E)</div>
+            </div>
+        </div>
+        
+        <div class="editor-container">
+            <div class="tabs">
+                <button class="tab active" id="welcome-tab">Welcome</button>
+            </div>
+            
+            <div id="editor-area">
+                <div class="welcome-screen" id="welcome-screen">
+                    <h2>Welcome to AI IDE</h2>
+                    <p>A complete VSCode alternative with built-in AI features</p>
+                    
+                    <ul class="feature-list">
+                        <li>🎯 <strong>AI Code Generation:</strong> Press <span class="shortcut">Ctrl+K</span> to generate code with AI</li>
+                        <li>💬 <strong>AI Chat Panel:</strong> Press <span class="shortcut">Ctrl+L</span> to open AI chat</li>
+                        <li>🔍 <strong>Code Explanation:</strong> Press <span class="shortcut">Ctrl+E</span> to explain selected code</li>
+                        <li>📝 <strong>Full Editor:</strong> Complete code editing with syntax highlighting</li>
+                        <li>📁 <strong>File Management:</strong> Open, save, and manage your projects</li>
+                    </ul>
+                    
+                    <p style="margin-top: 30px; color: #888;">
+                        Start by creating a new file or opening an existing one!
+                    </p>
+                </div>
+                
+                <div id="editor" style="display: none;"></div>
+            </div>
+        </div>
+        
+        <div class="ai-panel" id="ai-panel">
+            <div class="ai-header">
+                <h3>🤖 AI Assistant</h3>
+                <button onclick="toggleAiChat()" style="float: right; background: none; border: none; color: #cccccc; cursor: pointer;">✕</button>
+            </div>
+            <div class="ai-content" id="ai-messages">
+                <div class="ai-message ai">
+                    <strong>AI:</strong> Hello! I'm your AI coding assistant. I can help you:
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>Generate code based on your descriptions</li>
+                        <li>Explain existing code</li>
+                        <li>Debug and optimize your code</li>
+                        <li>Answer programming questions</li>
+                    </ul>
+                    Try asking me something or use Ctrl+K to generate code!
+                </div>
+            </div>
+            <div class="ai-input">
+                <input type="text" id="ai-input" placeholder="Ask me anything about your code..." onkeypress="handleAiInput(event)">
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+    <script>
+        const { ipcRenderer } = require('electron');
+        let editor;
+        let currentFile = null;
+        
+        // Initialize Monaco Editor
+        require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' } });
+        require(['vs/editor/editor.main'], function () {
+            editor = monaco.editor.create(document.getElementById('editor'), {
+                value: '// Welcome to AI IDE!\n// Press Ctrl+K to generate code with AI\n// Press Ctrl+L to open AI chat\n\nconsole.log("Hello, AI IDE!");',
+                language: 'javascript',
+                theme: 'vs-dark',
+                automaticLayout: true,
+                fontSize: 14,
+                minimap: { enabled: true },
+                scrollBeyondLastLine: false
+            });
+            
+            // Add keyboard shortcuts
+            editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyK, aiGenerate);
+            editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyL, toggleAiChat);
+            editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyE, aiExplain);
+        });
+        
+        // IPC Handlers
+        ipcRenderer.on('menu-new-file', createNewFile);
+        ipcRenderer.on('file-opened', (event, { path, content }) => {
+            openFileContent(path, content);
+        });
+        ipcRenderer.on('menu-save', saveFile);
+        ipcRenderer.on('ai-generate', aiGenerate);
+        ipcRenderer.on('ai-chat', toggleAiChat);
+        ipcRenderer.on('ai-explain', aiExplain);
+        
+        function createNewFile() {
+            document.getElementById('welcome-screen').style.display = 'none';
+            document.getElementById('editor').style.display = 'block';
+            
+            if (editor) {
+                editor.setValue('');
+                currentFile = null;
+                updateTab('Untitled');
+            }
+        }
+        
+        function openFileContent(path, content) {
+            document.getElementById('welcome-screen').style.display = 'none';
+            document.getElementById('editor').style.display = 'block';
+            
+            if (editor) {
+                editor.setValue(content);
+                currentFile = path;
+                updateTab(path.split('\\').pop());
+                
+                // Set language based on file extension
+                const ext = path.split('.').pop().toLowerCase();
+                const languageMap = {
+                    'js': 'javascript',
+                    'jsx': 'javascript',
+                    'ts': 'typescript',
+                    'tsx': 'typescript',
+                    'py': 'python',
+                    'html': 'html',
+                    'css': 'css',
+                    'json': 'json',
+                    'md': 'markdown'
+                };
+                
+                if (languageMap[ext]) {
+                    monaco.editor.setModelLanguage(editor.getModel(), languageMap[ext]);
+                }
+            }
+        }
+        
+        function updateTab(name) {
+            document.getElementById('welcome-tab').textContent = name;
+        }
+        
+        async function saveFile() {
+            if (editor) {
+                const content = editor.getValue();
+                const result = await ipcRenderer.invoke('save-file', { 
+                    path: currentFile, 
+                    content 
+                });
+                
+                if (result.success) {
+                    if (result.path) {
+                        currentFile = result.path;
+                        updateTab(result.path.split('\\').pop());
+                    }
+                    console.log('File saved successfully');
+                } else {
+                    console.error('Failed to save file:', result.error);
+                }
+            }
+        }
+        
+        function aiGenerate() {
+            const prompt = window.prompt('🤖 AI Code Generation\n\nWhat would you like me to create?', 
+                'Create a function that sorts an array');
+            
+            if (prompt && editor) {
+                const selection = editor.getSelection();
+                const aiCode = `// 🤖 AI Generated Code
+// Prompt: ${prompt}
+// Generated: ${new Date().toLocaleString()}
+
+function aiGeneratedFunction() {
+    // TODO: Connect to your AI backend for real code generation
+    console.log('AI Request: ${prompt}');
+    
+    // This is a placeholder - replace with actual AI integration
+    return 'AI generated code based on: ${prompt}';
+}
+
+// Example usage:
+aiGeneratedFunction();
+`;
+                
+                editor.executeEdits('ai-generate', [{
+                    range: selection,
+                    text: aiCode
+                }]);
+                
+                addAiMessage('user', prompt);
+                addAiMessage('ai', `I've generated code for: "${prompt}". Connect me to your AI backend for real code generation!`);
+            }
+        }
+        
+        function toggleAiChat() {
+            const panel = document.getElementById('ai-panel');
+            panel.classList.toggle('show');
+            
+            if (panel.classList.contains('show')) {
+                document.getElementById('ai-input').focus();
+            }
+        }
+        
+        function aiExplain() {
+            if (editor) {
+                const selection = editor.getModel().getValueInRange(editor.getSelection());
+                
+                if (selection) {
+                    const explanation = `🤖 AI Code Explanation:
+
+Selected code: ${selection.substring(0, 100)}${selection.length > 100 ? '...' : ''}
+
+This appears to be ${monaco.editor.getModel(editor.getModel()).getLanguageId()} code.
+
+Connect me to your AI backend for detailed code analysis and explanations!`;
+                    
+                    alert(explanation);
+                    addAiMessage('user', 'Explain this code: ' + selection.substring(0, 50) + '...');
+                    addAiMessage('ai', 'This code appears to be a code snippet. Connect me to your AI backend for detailed explanations!');
+                } else {
+                    alert('Please select some code to explain');
+                }
+            }
+        }
+        
+        function handleAiInput(event) {
+            if (event.key === 'Enter') {
+                const input = document.getElementById('ai-input');
+                const message = input.value.trim();
+                
+                if (message) {
+                    addAiMessage('user', message);
+                    addAiMessage('ai', `I received your message: "${message}". Connect me to your AI backend for intelligent responses!`);
+                    input.value = '';
+                }
+            }
+        }
+        
+        function addAiMessage(type, text) {
+            const messagesDiv = document.getElementById('ai-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `ai-message ${type}`;
+            messageDiv.innerHTML = `<strong>${type === 'user' ? 'You' : 'AI'}:</strong> ${text}`;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            // Show AI panel if not visible
+            if (!document.getElementById('ai-panel').classList.contains('show')) {
+                toggleAiChat();
+            }
+        }
+        
+        function openFile() {
+            ipcRenderer.send('menu-open-file');
+        }
+        
+        function openFolder() {
+            alert('Folder support coming soon! For now, use File → Open File');
+        }
+    </script>
+</body>
+</html>

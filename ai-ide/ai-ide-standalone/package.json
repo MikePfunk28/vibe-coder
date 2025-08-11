@@ -1,16 +1,16 @@
 {
-  "description": "AI IDE - VSCode Alternative with AI Features",
+  "main": "main.js",
+  "version": "1.0.0",
   "devDependencies": {
     "electron-builder": "^24.6.4"
-  },
-  "version": "1.0.0",
-  "scripts": {
-    "build": "electron-builder",
-    "start": "electron ."
   },
   "dependencies": {
     "electron": "^27.0.0"
   },
-  "name": "ai-ide",
-  "main": "main.js"
+  "description": "AI IDE - VSCode Alternative with AI Features",
+  "scripts": {
+    "build": "electron-builder",
+    "start": "electron ."
+  },
+  "name": "ai-ide"
 }

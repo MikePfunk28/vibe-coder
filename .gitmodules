@@ -3,4 +3,4 @@
 	url = ./ai-ide/code-oss
 [submodule "ai-ide/vscodium"]
 	path = ai-ide/vscodium
-	url = ./ai-ide/vscodium
+	url = https://github.com/MikePfunk28/vscodium.git

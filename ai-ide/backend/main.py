@@ -138,7 +138,11 @@ class AIIDEBackend:
             
             # Index the workspace (async in background)
             logger.info("Starting workspace indexing...")
-            self.semantic_index.index_workspace()
+            try:
+                self.semantic_index.index_workspace()
+            except Exception as e:
+                logger.warning(f"Workspace indexing failed: {e}")
+                # Continue without semantic indexing
             
             self.services['semantic_search'] = True
             logger.info("Semantic search engine initialized successfully")
@@ -631,6 +635,8 @@ async def main():
         
         # Main communication loop with VSCode extension
         logger.info("Starting communication loop...")
+        logger.info("Backend ready - you can now start VSCode extension")
+        logger.info("Listening for JSON tasks on stdin...")
         
         while True:
             try:

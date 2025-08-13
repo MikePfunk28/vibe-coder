@@ -59,7 +59,8 @@
     - Verify extension compatibility and loading
     - _Requirements: 1.1_
 
-  - [ ] 2.2 Install major helpful extensions
+  - [x] 2.2 Install major helpful extensions
+
 
     - This is a FULL AI IDE, MIKE-AI_IDE
       - [ ] AI Assistant - AI coding assistant

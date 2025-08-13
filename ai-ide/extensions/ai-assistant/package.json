@@ -64,6 +64,30 @@
         "command": "ai-assistant.insertCodeSnippet",
         "title": "Insert Code Snippet",
         "category": "AI Assistant"
+      },
+      {
+        "command": "ai-assistant.enhancedCopilot",
+        "title": "Enhanced Copilot with Multi-Model",
+        "category": "AI Assistant",
+        "icon": "$(copilot)"
+      },
+      {
+        "command": "ai-assistant.contextualChat",
+        "title": "Contextual Chat (#File, #Folder, #Problems)",
+        "category": "AI Assistant",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "ai-assistant.autonomyMode",
+        "title": "Toggle Autonomy Mode (Autopilot/Supervised)",
+        "category": "AI Assistant",
+        "icon": "$(settings-gear)"
+      },
+      {
+        "command": "ai-assistant.multiModelCompletion",
+        "title": "Multi-Model Code Completion",
+        "category": "AI Assistant",
+        "icon": "$(multiple-windows)"
       }
     ],
     "views": {
@@ -72,6 +96,12 @@
           "type": "webview",
           "id": "ai-assistant.chatView",
           "name": "AI Chat",
+          "when": "true"
+        },
+        {
+          "type": "webview",
+          "id": "ai-assistant.contextualChat",
+          "name": "Contextual Chat",
           "when": "true"
         },
         {
@@ -184,5 +214,9 @@
   },
   "dependencies": {
     "axios": "^1.6.2"
-  }
+  },
+  "extensionDependencies": [
+    "GitHub.copilot",
+    "GitHub.copilot-chat"
+  ]
 }

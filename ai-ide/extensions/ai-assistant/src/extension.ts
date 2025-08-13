@@ -2,10 +2,16 @@ import * as vscode from 'vscode';
 import { PocketFlowBridge } from './services/PocketFlowBridge';
 import { ChatProvider } from './providers/ChatProvider';
 import { SearchDashboardProvider } from './providers/SearchDashboardProvider';
+import { CopilotEnhancer } from './services/CopilotEnhancer';
+import { ContextualChatProvider } from './providers/ContextualChatProvider';
+import { AutonomyModeManager } from './services/AutonomyModeManager';
 
 let pocketFlowBridge: PocketFlowBridge;
 let chatProvider: ChatProvider;
 let searchDashboardProvider: SearchDashboardProvider;
+let copilotEnhancer: CopilotEnhancer;
+let contextualChatProvider: ContextualChatProvider;
+let autonomyModeManager: AutonomyModeManager;
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('AI Assistant extension is now active!');
@@ -16,11 +22,17 @@ export function activate(context: vscode.ExtensionContext) {
     // Initialize providers
     chatProvider = new ChatProvider(context, pocketFlowBridge);
     searchDashboardProvider = new SearchDashboardProvider(context, pocketFlowBridge);
+    contextualChatProvider = new ContextualChatProvider(context, pocketFlowBridge);
+    
+    // Initialize services
+    copilotEnhancer = new CopilotEnhancer(context, pocketFlowBridge);
+    autonomyModeManager = new AutonomyModeManager(context, pocketFlowBridge);
     
     // Register webview providers
     context.subscriptions.push(
         vscode.window.registerWebviewViewProvider(ChatProvider.viewType, chatProvider),
-        vscode.window.registerWebviewViewProvider(SearchDashboardProvider.viewType, searchDashboardProvider)
+        vscode.window.registerWebviewViewProvider(SearchDashboardProvider.viewType, searchDashboardProvider),
+        vscode.window.registerWebviewViewProvider(ContextualChatProvider.viewType, contextualChatProvider)
     );
     
     // Initialize backend services
@@ -66,6 +78,23 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
+    // Enhanced commands
+    const enhancedCopilotCommand = vscode.commands.registerCommand('ai-assistant.enhancedCopilot', async () => {
+        await copilotEnhancer.toggleEnhancedMode();
+    });
+
+    const contextualChatCommand = vscode.commands.registerCommand('ai-assistant.contextualChat', async () => {
+        await vscode.commands.executeCommand('ai-assistant.contextualChat.focus');
+    });
+
+    const autonomyModeCommand = vscode.commands.registerCommand('ai-assistant.autonomyMode', async () => {
+        await autonomyModeManager.toggleMode();
+    });
+
+    const multiModelCompletionCommand = vscode.commands.registerCommand('ai-assistant.multiModelCompletion', async () => {
+        await copilotEnhancer.triggerMultiModelCompletion();
+    });
+
     context.subscriptions.push(
         openChatCommand,
         generateCodeCommand,
@@ -74,9 +103,16 @@ export function activate(context: vscode.ExtensionContext) {
         openSearchDashboardCommand,
         insertCodeSnippetCommand,
         performUnifiedSearchCommand,
+        enhancedCopilotCommand,
+        contextualChatCommand,
+        autonomyModeCommand,
+        multiModelCompletionCommand,
         pocketFlowBridge,
         chatProvider,
-        searchDashboardProvider
+        searchDashboardProvider,
+        contextualChatProvider,
+        copilotEnhancer,
+        autonomyModeManager
     );
 
     // Show activation message
@@ -530,5 +566,14 @@ export function deactivate() {
     }
     if (searchDashboardProvider) {
         searchDashboardProvider.dispose();
+    }
+    if (contextualChatProvider) {
+        contextualChatProvider.dispose();
+    }
+    if (copilotEnhancer) {
+        copilotEnhancer.dispose();
+    }
+    if (autonomyModeManager) {
+        autonomyModeManager.dispose();
     }
 }

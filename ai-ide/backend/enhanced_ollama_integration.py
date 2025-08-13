@@ -177,7 +177,7 @@ class EnhancedOllamaIntegration:
         
         if any(keyword in name_lower for keyword in ['coder', 'code', 'deepseek', 'deepseek-r1', 'agent']):
             return OllamaModelType.CODE_GENERATION, ['code', 'completion', 'generation', 'debugging']
-        elif any(keyword in name_lower for keyword in ['phi-4-mini', 'phi-4', 'devstral', 'gemma', 'llama','mistral', 'deepseek']):
+        elif any(keyword in name_lower for keyword in ['phi-4-mini', 'phi-4', 'devstral', 'gemma', 'qwen-3','mistral', 'deepseek']):
             return OllamaModelType.CHAT, ['chat', 'reasoning', 'general', 'instruct', 'embedding', 'reasoning-plus']
         elif 'qwen' in name_lower:
             return OllamaModelType.CODE_GENERATION, ['code', 'chat', 'reasoning', 'multilingual']

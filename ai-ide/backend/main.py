@@ -20,6 +20,10 @@ from qwen_coder_agent import (
     get_qwen_coder_agent, QwenCoderAgent, CodeRequest, CodeContext, CodeTaskType,
     complete_code, generate_code, refactor_code, debug_code
 )
+from universal_ai_provider import (
+    get_universal_ai_provider, UniversalAIProvider, 
+    generate_with_best_model, generate_with_cheapest_model, generate_with_fastest_model
+)
 
 # Set up logging
 logging.basicConfig(
@@ -43,6 +47,7 @@ class AIIDEBackend:
         self.performance_tracker = None
         self.lm_studio_manager = None
         self.qwen_coder_agent: Optional[QwenCoderAgent] = None
+        self.universal_ai_provider: Optional[UniversalAIProvider] = None
         
     async def initialize(self):
         """Initialize all backend services"""
@@ -50,6 +55,7 @@ class AIIDEBackend:
             logger.info("Initializing AI IDE Backend...")
             
             # Initialize core services
+            await self.init_universal_ai_provider()
             await self.init_pocketflow()
             await self.init_lm_studio_client()
             await self.init_qwen_coder_agent()
@@ -150,6 +156,51 @@ class AIIDEBackend:
             logger.warning(f"Semantic search initialization failed: {e}")
             self.services['semantic_search'] = False
     
+    async def init_universal_ai_provider(self):
+        """Initialize Universal AI Provider System"""
+        logger.info("Initializing Universal AI Provider System...")
+        try:
+            self.universal_ai_provider = await get_universal_ai_provider()
+            
+            # Get available models summary
+            available_models = self.universal_ai_provider.get_available_models()
+            logger.info(f"Universal AI Provider initialized with {len(available_models)} models")
+            
+            # Log model summary by provider
+            provider_counts = {}
+            for model in available_models.values():
+                provider_name = model.provider.value
+                provider_counts[provider_name] = provider_counts.get(provider_name, 0) + 1
+            
+            for provider, count in provider_counts.items():
+                logger.info(f"  - {provider}: {count} models")
+            
+            # Test with best available model
+            try:
+                best_model = self.universal_ai_provider.get_best_model('code')
+                if best_model:
+                    logger.info(f"Best coding model: {best_model.name} ({best_model.provider.value})")
+                    
+                    # Quick test
+                    test_result = await self.universal_ai_provider.generate_completion(
+                        best_model.name,
+                        "def hello():",
+                        max_tokens=50,
+                        temperature=0.1
+                    )
+                    logger.info("Universal AI Provider test successful")
+                else:
+                    logger.warning("No coding models available")
+            except Exception as e:
+                logger.warning(f"Universal AI Provider test failed: {e}")
+            
+            self.services['universal_ai'] = True
+            logger.info("Universal AI Provider System initialized successfully")
+            
+        except Exception as e:
+            logger.error(f"Failed to initialize Universal AI Provider: {e}")
+            self.services['universal_ai'] = False
+    
     async def handle_task(self, task: Dict[str, Any]) -> Dict[str, Any]:
         """Handle incoming task from VSCode extension"""
         if not self.initialized:
@@ -170,10 +221,16 @@ class AIIDEBackend:
             # Route task based on type
             if task_type == "code_generation":
                 result = await self.handle_code_generation(task)
+            elif task_type == "multi_model_generation":
+                result = await self.handle_multi_model_generation(task)
             elif task_type == "semantic_search":
                 result = await self.handle_semantic_search(task)
             elif task_type == "reasoning":
                 result = await self.handle_reasoning(task)
+            elif task_type == "model_comparison":
+                result = await self.handle_model_comparison(task)
+            elif task_type == "get_available_models":
+                result = await self.get_available_models()
             else:
                 raise ValueError(f"Unknown task type: {task_type}")
             
@@ -207,8 +264,52 @@ class AIIDEBackend:
         start_time = datetime.now()
         
         try:
+            # First try Universal AI Provider for best model selection
+            if self.universal_ai_provider and self.services.get('universal_ai'):
+                logger.info("Using Universal AI Provider for code generation")
+                
+                # Get the best model for coding
+                best_model = self.universal_ai_provider.get_best_model('code')
+                if best_model:
+                    # Create enhanced prompt
+                    enhanced_prompt = self._create_code_generation_prompt(prompt, context)
+                    
+                    # Generate with best available model
+                    response = await self.universal_ai_provider.generate_completion(
+                        best_model.name,
+                        enhanced_prompt,
+                        max_tokens=task.get("input", {}).get("max_tokens", 2048),
+                        temperature=task.get("input", {}).get("temperature", 0.3)
+                    )
+                    
+                    # Extract and clean the generated code
+                    generated_code = self._extract_code_from_response(response['text'], language)
+                    
+                    execution_time = (datetime.now() - start_time).total_seconds()
+                    
+                    return {
+                        "code": generated_code,
+                        "language": language,
+                        "confidence": 0.95,  # High confidence for best model
+                        "model_info": {
+                            "model_name": best_model.name,
+                            "provider": best_model.provider.value,
+                            "context_length": best_model.context_length,
+                            "cost_per_token": best_model.cost_per_token
+                        },
+                        "execution_metrics": {
+                            "total_time": execution_time,
+                            "tokens_used": response.get('usage', {}).get('total_tokens', 0)
+                        },
+                        "metadata": {
+                            "agent_used": "universal_ai_provider",
+                            "task_type": task_type,
+                            "finish_reason": response.get('finish_reason')
+                        }
+                    }
+            
             # Use Qwen Coder agent if available
-            if self.qwen_coder_agent and self.services.get('qwen_coder'):
+            elif self.qwen_coder_agent and self.services.get('qwen_coder'):
                 logger.info(f"Using Qwen Coder agent for {task_type} task")
                 
                 # Determine the appropriate code task type
@@ -678,4 +779,289 @@ async def main():
         sys.exit(1)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(main())    
+
+    async def handle_multi_model_generation(self, task: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle multi-model code generation for comparison"""
+        prompt = task.get("input", {}).get("prompt", "")
+        context = task.get("context", {})
+        language = context.get("language", "python")
+        num_models = task.get("input", {}).get("num_models", 3)
+        
+        start_time = datetime.now()
+        results = []
+        
+        try:
+            if self.universal_ai_provider and self.services.get('universal_ai'):
+                logger.info(f"Using Universal AI Provider for multi-model generation ({num_models} models)")
+                
+                # Get different types of models for comparison
+                best_model = self.universal_ai_provider.get_best_model('code')
+                cheapest_model = self.universal_ai_provider.get_cheapest_model('code')
+                fastest_model = self.universal_ai_provider.get_fastest_model('code')
+                
+                models_to_try = []
+                if best_model:
+                    models_to_try.append(('best', best_model))
+                if cheapest_model and cheapest_model.name != (best_model.name if best_model else None):
+                    models_to_try.append(('cheapest', cheapest_model))
+                if fastest_model and fastest_model.name not in [m[1].name for m in models_to_try]:
+                    models_to_try.append(('fastest', fastest_model))
+                
+                # Limit to requested number of models
+                models_to_try = models_to_try[:num_models]
+                
+                # Create enhanced prompt
+                enhanced_prompt = self._create_code_generation_prompt(prompt, context)
+                
+                # Generate with each model
+                for model_type, model_info in models_to_try:
+                    try:
+                        model_start_time = datetime.now()
+                        
+                        response = await self.universal_ai_provider.generate_completion(
+                            model_info.name,
+                            enhanced_prompt,
+                            max_tokens=task.get("input", {}).get("max_tokens", 1024),
+                            temperature=task.get("input", {}).get("temperature", 0.3)
+                        )
+                        
+                        model_execution_time = (datetime.now() - model_start_time).total_seconds()
+                        
+                        # Extract and clean the generated code
+                        generated_code = self._extract_code_from_response(response['text'], language)
+                        
+                        results.append({
+                            "model_type": model_type,
+                            "model_name": model_info.name,
+                            "provider": model_info.provider.value,
+                            "code": generated_code,
+                            "confidence": self._calculate_code_confidence(generated_code, language),
+                            "execution_time": model_execution_time,
+                            "cost_estimate": (response.get('usage', {}).get('total_tokens', 0) * 
+                                            (model_info.cost_per_token or 0)),
+                            "context_length": model_info.context_length,
+                            "finish_reason": response.get('finish_reason'),
+                            "tokens_used": response.get('usage', {}).get('total_tokens', 0)
+                        })
+                        
+                    except Exception as e:
+                        logger.error(f"Failed to generate with {model_info.name}: {e}")
+                        results.append({
+                            "model_type": model_type,
+                            "model_name": model_info.name,
+                            "provider": model_info.provider.value,
+                            "error": str(e),
+                            "execution_time": 0,
+                            "cost_estimate": 0
+                        })
+                
+                total_execution_time = (datetime.now() - start_time).total_seconds()
+                
+                return {
+                    "results": results,
+                    "total_models": len(results),
+                    "successful_models": len([r for r in results if 'code' in r]),
+                    "total_execution_time": total_execution_time,
+                    "language": language,
+                    "prompt": prompt,
+                    "metadata": {
+                        "agent_used": "universal_ai_provider_multi",
+                        "task_type": "multi_model_generation"
+                    }
+                }
+            
+            else:
+                return {
+                    "error": "Universal AI Provider not available",
+                    "results": [],
+                    "total_models": 0,
+                    "successful_models": 0
+                }
+                
+        except Exception as e:
+            logger.error(f"Multi-model generation failed: {e}")
+            return {
+                "error": str(e),
+                "results": results,
+                "total_models": len(results),
+                "successful_models": len([r for r in results if 'code' in r])
+            }
+    
+    def _calculate_code_confidence(self, code: str, language: str) -> float:
+        """Calculate confidence score for generated code"""
+        if not code or not code.strip():
+            return 0.0
+        
+        confidence = 0.5  # Base confidence
+        
+        # Check for basic code structure
+        if language.lower() == 'python':
+            if 'def ' in code or 'class ' in code:
+                confidence += 0.2
+            if 'import ' in code or 'from ' in code:
+                confidence += 0.1
+            if code.count(':') > 0:  # Python uses colons
+                confidence += 0.1
+        elif language.lower() in ['javascript', 'typescript']:
+            if 'function ' in code or '=>' in code:
+                confidence += 0.2
+            if '{' in code and '}' in code:
+                confidence += 0.1
+            if ';' in code:
+                confidence += 0.1
+        
+        # Check for comments
+        if '//' in code or '#' in code or '/*' in code:
+            confidence += 0.05
+        
+        # Check for reasonable length
+        if 50 <= len(code) <= 2000:
+            confidence += 0.05
+        
+        return min(confidence, 1.0)
+    
+    async def get_available_models(self) -> Dict[str, Any]:
+        """Get information about all available AI models"""
+        if not self.universal_ai_provider or not self.services.get('universal_ai'):
+            return {
+                "error": "Universal AI Provider not available",
+                "models": {},
+                "providers": {}
+            }
+        
+        try:
+            available_models = self.universal_ai_provider.get_available_models()
+            
+            # Group models by provider
+            providers = {}
+            for model_name, model_info in available_models.items():
+                provider_name = model_info.provider.value
+                if provider_name not in providers:
+                    providers[provider_name] = {
+                        "models": [],
+                        "total_models": 0,
+                        "capabilities": set()
+                    }
+                
+                providers[provider_name]["models"].append({
+                    "name": model_name,
+                    "context_length": model_info.context_length,
+                    "capabilities": model_info.capabilities,
+                    "cost_per_token": model_info.cost_per_token,
+                    "size_gb": model_info.size_gb,
+                    "local_path": model_info.local_path
+                })
+                providers[provider_name]["total_models"] += 1
+                providers[provider_name]["capabilities"].update(model_info.capabilities)
+            
+            # Convert sets to lists for JSON serialization
+            for provider_info in providers.values():
+                provider_info["capabilities"] = list(provider_info["capabilities"])
+            
+            # Get recommended models
+            recommendations = {
+                "best_coding": self.universal_ai_provider.get_best_model('code'),
+                "cheapest_coding": self.universal_ai_provider.get_cheapest_model('code'),
+                "fastest_coding": self.universal_ai_provider.get_fastest_model('code'),
+                "best_chat": self.universal_ai_provider.get_best_model('chat'),
+                "cheapest_chat": self.universal_ai_provider.get_cheapest_model('chat'),
+                "fastest_chat": self.universal_ai_provider.get_fastest_model('chat')
+            }
+            
+            # Convert model objects to dictionaries
+            for key, model in recommendations.items():
+                if model:
+                    recommendations[key] = {
+                        "name": model.name,
+                        "provider": model.provider.value,
+                        "context_length": model.context_length,
+                        "capabilities": model.capabilities,
+                        "cost_per_token": model.cost_per_token
+                    }
+                else:
+                    recommendations[key] = None
+            
+            return {
+                "models": available_models,
+                "providers": providers,
+                "recommendations": recommendations,
+                "total_models": len(available_models),
+                "total_providers": len(providers)
+            }
+            
+        except Exception as e:
+            logger.error(f"Failed to get available models: {e}")
+            return {
+                "error": str(e),
+                "models": {},
+                "providers": {}
+            }
+    
+    async def handle_model_comparison(self, task: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle model comparison and selection"""
+        capability = task.get("input", {}).get("capability", "code")
+        preference = task.get("input", {}).get("preference", "best")  # best, cheapest, fastest
+        
+        try:
+            if not self.universal_ai_provider or not self.services.get('universal_ai'):
+                return {
+                    "error": "Universal AI Provider not available",
+                    "selected_model": None,
+                    "alternatives": []
+                }
+            
+            # Get model based on preference
+            if preference == "cheapest":
+                selected_model = self.universal_ai_provider.get_cheapest_model(capability)
+            elif preference == "fastest":
+                selected_model = self.universal_ai_provider.get_fastest_model(capability)
+            else:  # best
+                selected_model = self.universal_ai_provider.get_best_model(capability)
+            
+            # Get alternatives
+            all_models = self.universal_ai_provider.get_models_by_capability(capability)
+            alternatives = []
+            
+            for model_name, model_info in all_models.items():
+                if not selected_model or model_name != selected_model.name:
+                    alternatives.append({
+                        "name": model_name,
+                        "provider": model_info.provider.value,
+                        "context_length": model_info.context_length,
+                        "cost_per_token": model_info.cost_per_token,
+                        "capabilities": model_info.capabilities,
+                        "size_gb": model_info.size_gb
+                    })
+            
+            # Sort alternatives by preference
+            if preference == "cheapest":
+                alternatives.sort(key=lambda x: x["cost_per_token"] or 0)
+            elif preference == "fastest":
+                # Local models are typically faster
+                alternatives.sort(key=lambda x: (x["cost_per_token"] or 0 > 0, x["size_gb"] or 0))
+            else:  # best
+                alternatives.sort(key=lambda x: x["context_length"], reverse=True)
+            
+            return {
+                "selected_model": {
+                    "name": selected_model.name,
+                    "provider": selected_model.provider.value,
+                    "context_length": selected_model.context_length,
+                    "cost_per_token": selected_model.cost_per_token,
+                    "capabilities": selected_model.capabilities,
+                    "size_gb": selected_model.size_gb
+                } if selected_model else None,
+                "alternatives": alternatives[:5],  # Top 5 alternatives
+                "capability": capability,
+                "preference": preference,
+                "total_available": len(all_models)
+            }
+            
+        except Exception as e:
+            logger.error(f"Model comparison failed: {e}")
+            return {
+                "error": str(e),
+                "selected_model": None,
+                "alternatives": []
+            }

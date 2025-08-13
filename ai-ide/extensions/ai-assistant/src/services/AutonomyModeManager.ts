@@ -263,7 +263,7 @@ export class AutonomyModeManager {
 
             return {
                 success: true,
-                changes: result.changes || [],
+                changes: [],
                 result: result
             };
         } catch (error) {

@@ -88,6 +88,12 @@
         "title": "Multi-Model Code Completion",
         "category": "AI Assistant",
         "icon": "$(multiple-windows)"
+      },
+      {
+        "command": "ai-assistant.checkCopilotStatus",
+        "title": "Check Copilot Status",
+        "category": "AI Assistant",
+        "icon": "$(info)"
       }
     ],
     "views": {
@@ -190,6 +196,27 @@
           "group": "navigation"
         }
       ]
+    },
+    "configuration": {
+      "title": "AI Assistant",
+      "properties": {
+        "ai-assistant.autonomyMode": {
+          "type": "string",
+          "enum": ["supervised", "autopilot"],
+          "default": "supervised",
+          "description": "AI autonomy mode for code changes"
+        },
+        "ai-assistant.enhancedCopilot": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable enhanced Copilot with multi-model support"
+        },
+        "ai-assistant.backendUrl": {
+          "type": "string",
+          "default": "http://localhost:8000",
+          "description": "Backend service URL"
+        }
+      }
     }
   },
   "scripts": {

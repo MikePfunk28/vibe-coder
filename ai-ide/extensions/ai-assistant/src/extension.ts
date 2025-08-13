@@ -5,6 +5,7 @@ import { SearchDashboardProvider } from './providers/SearchDashboardProvider';
 import { CopilotEnhancer } from './services/CopilotEnhancer';
 import { ContextualChatProvider } from './providers/ContextualChatProvider';
 import { AutonomyModeManager } from './services/AutonomyModeManager';
+import { CopilotIntegration } from './services/CopilotIntegration';
 
 let pocketFlowBridge: PocketFlowBridge;
 let chatProvider: ChatProvider;
@@ -12,6 +13,7 @@ let searchDashboardProvider: SearchDashboardProvider;
 let copilotEnhancer: CopilotEnhancer;
 let contextualChatProvider: ContextualChatProvider;
 let autonomyModeManager: AutonomyModeManager;
+let copilotIntegration: CopilotIntegration;
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('AI Assistant extension is now active!');
@@ -25,6 +27,7 @@ export function activate(context: vscode.ExtensionContext) {
     contextualChatProvider = new ContextualChatProvider(context, pocketFlowBridge);
     
     // Initialize services
+    copilotIntegration = new CopilotIntegration();
     copilotEnhancer = new CopilotEnhancer(context, pocketFlowBridge);
     autonomyModeManager = new AutonomyModeManager(context, pocketFlowBridge);
     
@@ -95,6 +98,23 @@ export function activate(context: vscode.ExtensionContext) {
         await copilotEnhancer.triggerMultiModelCompletion();
     });
 
+    const checkCopilotStatusCommand = vscode.commands.registerCommand('ai-assistant.checkCopilotStatus', async () => {
+        const status = await copilotIntegration.getCopilotStatus();
+        const info = copilotIntegration.getExtensionInfo();
+        
+        const message = `Copilot Status:
+• Copilot: ${status.copilot ? '✓ Active' : '✗ Not Available'}
+• Copilot Chat: ${status.copilotChat ? '✓ Active' : '✗ Not Available'}  
+• Authenticated: ${status.authenticated ? '✓ Yes' : '✗ No'}
+• Enabled: ${status.enabled ? '✓ Yes' : '✗ No'}
+
+Extension Info:
+${info.copilot ? `• Copilot v${info.copilot.version}` : '• Copilot: Not installed'}
+${info.copilotChat ? `• Copilot Chat v${info.copilotChat.version}` : '• Copilot Chat: Not installed'}`;
+
+        vscode.window.showInformationMessage(message, { modal: true });
+    });
+
     context.subscriptions.push(
         openChatCommand,
         generateCodeCommand,
@@ -107,12 +127,14 @@ export function activate(context: vscode.ExtensionContext) {
         contextualChatCommand,
         autonomyModeCommand,
         multiModelCompletionCommand,
+        checkCopilotStatusCommand,
         pocketFlowBridge,
         chatProvider,
         searchDashboardProvider,
         contextualChatProvider,
         copilotEnhancer,
-        autonomyModeManager
+        autonomyModeManager,
+        copilotIntegration
     );
 
     // Show activation message
@@ -575,5 +597,8 @@ export function deactivate() {
     }
     if (autonomyModeManager) {
         autonomyModeManager.dispose();
+    }
+    if (copilotIntegration) {
+        copilotIntegration.dispose();
     }
 }

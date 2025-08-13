@@ -62,11 +62,8 @@ export class CopilotEnhancer {
             const completionContext = {
                 filePath: document.fileName,
                 language: document.languageId,
-                currentLine: currentLine,
-                textBeforeCursor: textBeforeCursor,
-                textAfterCursor: textAfterCursor,
-                surroundingContext: surroundingContext,
-                cursorPosition: position
+                selectedText: textBeforeCursor,
+                cursorPosition: document.offsetAt(position)
             };
 
             const result = await this.pocketFlowBridge.executeCodeGeneration(
@@ -191,14 +188,14 @@ export class CopilotEnhancer {
                 // Use PocketFlow with Qwen Coder
                 return await this.pocketFlowBridge.executeCodeGeneration(
                     `Complete this code: ${prompt}`,
-                    { ...context, model: 'qwen-coder' }
+                    context
                 );
             
             case 'local-llm':
                 // Use local LLM through PocketFlow
                 return await this.pocketFlowBridge.executeCodeGeneration(
                     `Complete this code: ${prompt}`,
-                    { ...context, model: 'local' }
+                    context
                 );
             
             default:

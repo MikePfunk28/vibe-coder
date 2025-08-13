@@ -1,0 +1,54 @@
+{
+  "workbench.colorTheme": "Default Dark+",
+  "workbench.iconTheme": "vs-seti",
+  "workbench.startupEditor": "welcomePage",
+  "workbench.welcomePage.walkthroughs.openOnInstall": false,
+  "workbench.tips.enabled": false,
+  "workbench.activityBar.visible": true,
+  "workbench.statusBar.visible": true,
+  "workbench.sideBar.location": "left",
+  
+  "editor.fontSize": 14,
+  "editor.fontFamily": "Consolas, 'Courier New', monospace",
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.wordWrap": "on",
+  "editor.minimap.enabled": true,
+  "editor.suggestSelection": "first",
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": false,
+    "strings": false
+  },
+  
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  "terminal.integrated.fontSize": 12,
+  
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/node_modules": true,
+    "**/__pycache__": true,
+    "**/.pytest_cache": true,
+    "**/venv": true,
+    "**/.venv": true
+  },
+  
+  "ai-assistant.autoStart": true,
+  "ai-assistant.backendUrl": "http://localhost:8000",
+  "ai-assistant.enableInlineGeneration": true,
+  "ai-assistant.enableChat": true,
+  "ai-assistant.enableSemanticSearch": true,
+  "ai-assistant.enableReasoning": true,
+  
+  "extensions.autoUpdate": false,
+  "extensions.ignoreRecommendations": false,
+  
+  "telemetry.telemetryLevel": "off",
+  "update.mode": "manual"
+}

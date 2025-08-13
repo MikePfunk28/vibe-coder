@@ -4,11 +4,7 @@
 
 - [x] 1. Get REAL VSCode OSS working with EVERY SINGLE FEATURE
 
-
-
   - [x] 1.1 Build working VSCode OSS with complete feature set
-
-
 
     - Use REAL VSCode OSS, must have all vscode/cursor/windsurf features, then we add on top
     - VSCode OSS fork in ai-ide/vscode-oss-complete directory (source exists but not built)
@@ -24,10 +20,6 @@
 
   - [x] 1.2 Integrate existing AI Assistant extension
 
-
-
-
-
     - Use existing AI Assistant IDE in ai-ide/extensions/ai-assistant/ (already built)
     - Extension already has comprehensive features: inline generation, chat, semantic search, reasoning
     - Verify extension loads properly in VSCode OSS build
@@ -37,7 +29,6 @@
 
   - [x] 1.3 Start existing AI backend services
 
-
     - Use existing comprehensive backend in ai-ide/backend/ directory
     - Backend already includes: PocketFlow, LangChain, Qwen Coder, LM Studio, semantic search
     - Start backend using existing ai-ide/backend/main.py
@@ -46,7 +37,6 @@
     - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
 - [x] 1.4 Test and verify complete VSCode + AI integration
-
 
   - Launch VSCode OSS using START-COMPLETE-VSCODE.bat and verify it starts successfully
   - Load AI Assistant extension and verify it appears in activity bar
@@ -61,10 +51,7 @@
 
 - [-] 2. Get extension system working with Open VSX marketplace
 
-
   - [x] 2.1 Configure Open VSX marketplace integration
-
-
 
     - Set up Open VSX registry connection in existing VSCode fork
     - Configure extension installation and management
@@ -74,21 +61,21 @@
 
   - [ ] 2.2 Install major helpful extensions
 
-		- This is a FULL AI IDE, MIKE-AI_IDE
-			- [ ] AI Assistant - AI coding assistant
-			- [ ] GitHub Copilot - AI code completion and chat
-			- [ ] Claude Dev (Cline) - AI coding assistant
-			- [ ] AI Toolkit - comprehensive AI development tools
-			- [ ] AWS Toolkit - cloud development integration
-			- [ ] Kubernetes - container orchestration support
-			- [ ] Docker - containerization support
-			- [ ] GitLens - enhanced git capabilities
-			- [ ] Thunder Client - API testing
-			- [ ] Prettier - code formatting
-			- [ ] ESLint - code linting
-			- [ ] Python extension pack
-			- [ ] JavaScript/TypeScript extensions
-			- _Requirements: 2.1, 2.2, 2.4_
+    - This is a FULL AI IDE, MIKE-AI_IDE
+      - [ ] AI Assistant - AI coding assistant
+      - [ ] GitHub Copilot - AI code completion and chat
+      - [ ] Claude Dev (Cline) - AI coding assistant
+      - [ ] AI Toolkit - comprehensive AI development tools
+      - [ ] AWS Toolkit - cloud development integration
+      - [ ] Kubernetes - container orchestration support
+      - [ ] Docker - containerization support
+      - [ ] GitLens - enhanced git capabilities
+      - [ ] Thunder Client - API testing
+      - [ ] Prettier - code formatting
+      - [ ] ESLint - code linting
+      - [ ] Python extension pack
+      - [ ] JavaScript/TypeScript extensions
+      - _Requirements: 2.1, 2.2, 2.4_
 
   - [ ] 2.3 Install major helpful extensions
 

@@ -24,6 +24,10 @@ from universal_ai_provider import (
     get_universal_ai_provider, UniversalAIProvider, 
     generate_with_best_model, generate_with_cheapest_model, generate_with_fastest_model
 )
+from enhanced_ollama_integration import (
+    get_enhanced_ollama, EnhancedOllamaIntegration,
+    generate_with_deepseek_helper, generate_with_best_ollama_model
+)
 
 # Set up logging
 logging.basicConfig(
@@ -48,6 +52,7 @@ class AIIDEBackend:
         self.lm_studio_manager = None
         self.qwen_coder_agent: Optional[QwenCoderAgent] = None
         self.universal_ai_provider: Optional[UniversalAIProvider] = None
+        self.enhanced_ollama: Optional[EnhancedOllamaIntegration] = None
         
     async def initialize(self):
         """Initialize all backend services"""
@@ -56,6 +61,7 @@ class AIIDEBackend:
             
             # Initialize core services
             await self.init_universal_ai_provider()
+            await self.init_enhanced_ollama()
             await self.init_pocketflow()
             await self.init_lm_studio_client()
             await self.init_qwen_coder_agent()
@@ -201,6 +207,46 @@ class AIIDEBackend:
             logger.error(f"Failed to initialize Universal AI Provider: {e}")
             self.services['universal_ai'] = False
     
+    async def init_enhanced_ollama(self):
+        """Initialize Enhanced Ollama Integration"""
+        logger.info("Initializing Enhanced Ollama Integration...")
+        try:
+            self.enhanced_ollama = await get_enhanced_ollama()
+            
+            if self.enhanced_ollama.is_running:
+                # Get available models
+                available_models = self.enhanced_ollama.get_available_models()
+                helper_models = self.enhanced_ollama.get_helper_models()
+                
+                logger.info(f"Enhanced Ollama initialized with {len(available_models)} models")
+                logger.info(f"Helper models available: {len(helper_models)}")
+                
+                # Log helper models
+                for helper_model in helper_models:
+                    logger.info(f"  - Helper: {helper_model}")
+                
+                # Test with DeepSeek helper model if available
+                if helper_models:
+                    try:
+                        test_result = await self.enhanced_ollama.generate_with_helper_model(
+                            "def hello():",
+                            {'language': 'python', 'context': 'test'},
+                            'deepseek'
+                        )
+                        logger.info("Enhanced Ollama test successful")
+                    except Exception as e:
+                        logger.warning(f"Enhanced Ollama test failed: {e}")
+                
+                self.services['enhanced_ollama'] = True
+                logger.info("Enhanced Ollama Integration initialized successfully")
+            else:
+                logger.warning("Ollama service not running")
+                self.services['enhanced_ollama'] = False
+                
+        except Exception as e:
+            logger.error(f"Failed to initialize Enhanced Ollama: {e}")
+            self.services['enhanced_ollama'] = False
+    
     async def handle_task(self, task: Dict[str, Any]) -> Dict[str, Any]:
         """Handle incoming task from VSCode extension"""
         if not self.initialized:
@@ -231,6 +277,12 @@ class AIIDEBackend:
                 result = await self.handle_model_comparison(task)
             elif task_type == "get_available_models":
                 result = await self.get_available_models()
+            elif task_type == "ollama_helper_generation":
+                result = await self.handle_ollama_helper_generation(task)
+            elif task_type == "ollama_template_generation":
+                result = await self.handle_ollama_template_generation(task)
+            elif task_type == "get_ollama_models":
+                result = await self.get_ollama_models()
             else:
                 raise ValueError(f"Unknown task type: {task_type}")
             
@@ -307,6 +359,56 @@ class AIIDEBackend:
                             "finish_reason": response.get('finish_reason')
                         }
                     }
+            
+            # Try Enhanced Ollama with helper models
+            elif self.enhanced_ollama and self.services.get('enhanced_ollama'):
+                logger.info("Using Enhanced Ollama for code generation")
+                
+                # Determine task type for Ollama
+                ollama_task_type = self._map_to_ollama_task_type(task_type)
+                
+                try:
+                    # Use best Ollama model for the task
+                    response = await generate_with_best_ollama_model(
+                        prompt,
+                        ollama_task_type,
+                        {
+                            'language': language,
+                            'context': context.get('surroundingCode', ''),
+                            'file_path': context.get('filePath', ''),
+                            'selected_text': context.get('selectedText', '')
+                        }
+                    )
+                    
+                    # Extract and clean the generated code
+                    generated_code = self._extract_code_from_response(response['text'], language)
+                    
+                    execution_time = (datetime.now() - start_time).total_seconds()
+                    
+                    return {
+                        "code": generated_code,
+                        "language": language,
+                        "confidence": 0.9,  # High confidence for Ollama models
+                        "model_info": {
+                            "model_name": response['model'],
+                            "provider": "enhanced_ollama",
+                            "tokens_used": response.get('usage', {}).get('total_tokens', 0)
+                        },
+                        "execution_metrics": {
+                            "total_time": execution_time,
+                            "eval_duration": response.get('eval_duration', 0),
+                            "load_duration": response.get('load_duration', 0)
+                        },
+                        "metadata": {
+                            "agent_used": "enhanced_ollama",
+                            "task_type": task_type,
+                            "finish_reason": response.get('finish_reason')
+                        }
+                    }
+                    
+                except Exception as e:
+                    logger.warning(f"Enhanced Ollama generation failed: {e}")
+                    # Fall through to next option
             
             # Use Qwen Coder agent if available
             elif self.qwen_coder_agent and self.services.get('qwen_coder'):
@@ -1064,4 +1166,206 @@ if __name__ == "__main__":
                 "error": str(e),
                 "selected_model": None,
                 "alternatives": []
+            }
+    
+    def _map_to_ollama_task_type(self, task_type: str) -> str:
+        """Map general task type to Ollama-specific task type"""
+        mapping = {
+            'generation': 'code_generation',
+            'completion': 'code_completion',
+            'debugging': 'debugging',
+            'refactoring': 'code_generation',
+            'documentation': 'documentation',
+            'explanation': 'chat',
+            'review': 'code_review'
+        }
+        return mapping.get(task_type, 'code_generation')    
+  
+  async def handle_ollama_helper_generation(self, task: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle code generation using Ollama helper models"""
+        prompt = task.get("input", {}).get("prompt", "")
+        context = task.get("context", {})
+        helper_preference = task.get("input", {}).get("helper_preference", "deepseek")
+        
+        start_time = datetime.now()
+        
+        try:
+            if self.enhanced_ollama and self.services.get('enhanced_ollama'):
+                logger.info(f"Using Ollama helper model ({helper_preference}) for generation")
+                
+                response = await self.enhanced_ollama.generate_with_helper_model(
+                    prompt,
+                    {
+                        'language': context.get('language', 'python'),
+                        'context': context.get('surroundingCode', ''),
+                        'file_path': context.get('filePath', ''),
+                        'selected_text': context.get('selectedText', '')
+                    },
+                    helper_preference
+                )
+                
+                # Extract and clean the generated code
+                generated_code = self._extract_code_from_response(response['text'], context.get('language', 'python'))
+                
+                execution_time = (datetime.now() - start_time).total_seconds()
+                
+                return {
+                    "code": generated_code,
+                    "language": context.get('language', 'python'),
+                    "confidence": 0.85,
+                    "helper_model": response['model'],
+                    "model_info": {
+                        "model_name": response['model'],
+                        "provider": "ollama_helper",
+                        "tokens_used": response.get('usage', {}).get('total_tokens', 0)
+                    },
+                    "execution_metrics": {
+                        "total_time": execution_time,
+                        "eval_duration": response.get('eval_duration', 0)
+                    },
+                    "metadata": {
+                        "agent_used": "ollama_helper",
+                        "helper_preference": helper_preference
+                    }
+                }
+            else:
+                return {
+                    "error": "Enhanced Ollama not available",
+                    "code": "",
+                    "confidence": 0
+                }
+                
+        except Exception as e:
+            logger.error(f"Ollama helper generation failed: {e}")
+            return {
+                "error": str(e),
+                "code": "",
+                "confidence": 0
+            }
+    
+    async def handle_ollama_template_generation(self, task: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle code generation using Ollama templates"""
+        model_name = task.get("input", {}).get("model_name", "")
+        template_name = task.get("input", {}).get("template_name", "")
+        variables = task.get("input", {}).get("variables", {})
+        
+        start_time = datetime.now()
+        
+        try:
+            if self.enhanced_ollama and self.services.get('enhanced_ollama'):
+                logger.info(f"Using Ollama template generation: {template_name} with {model_name}")
+                
+                response = await self.enhanced_ollama.generate_with_template(
+                    model_name,
+                    template_name,
+                    variables,
+                    max_tokens=task.get("input", {}).get("max_tokens", 1000),
+                    temperature=task.get("input", {}).get("temperature", 0.7)
+                )
+                
+                execution_time = (datetime.now() - start_time).total_seconds()
+                
+                return {
+                    "text": response['text'],
+                    "model_name": model_name,
+                    "template_name": template_name,
+                    "variables": variables,
+                    "model_info": {
+                        "model_name": response['model'],
+                        "provider": "ollama_template",
+                        "tokens_used": response.get('usage', {}).get('total_tokens', 0)
+                    },
+                    "execution_metrics": {
+                        "total_time": execution_time,
+                        "eval_duration": response.get('eval_duration', 0)
+                    },
+                    "metadata": {
+                        "agent_used": "ollama_template",
+                        "template_used": template_name
+                    }
+                }
+            else:
+                return {
+                    "error": "Enhanced Ollama not available",
+                    "text": ""
+                }
+                
+        except Exception as e:
+            logger.error(f"Ollama template generation failed: {e}")
+            return {
+                "error": str(e),
+                "text": ""
+            }
+    
+    async def get_ollama_models(self) -> Dict[str, Any]:
+        """Get information about available Ollama models"""
+        try:
+            if not self.enhanced_ollama or not self.services.get('enhanced_ollama'):
+                return {
+                    "error": "Enhanced Ollama not available",
+                    "models": {},
+                    "helper_models": [],
+                    "templates": {}
+                }
+            
+            available_models = self.enhanced_ollama.get_available_models()
+            helper_models = self.enhanced_ollama.get_helper_models()
+            templates = self.enhanced_ollama.templates
+            
+            # Convert models to serializable format
+            models_info = {}
+            for model_name, model in available_models.items():
+                models_info[model_name] = {
+                    "name": model.name,
+                    "size": model.size,
+                    "modified": model.modified,
+                    "type": model.model_type.value,
+                    "capabilities": model.capabilities,
+                    "context_length": model.context_length,
+                    "is_helper_model": model.is_helper_model,
+                    "template": model.template,
+                    "system_prompt": model.system_prompt
+                }
+            
+            # Convert templates to serializable format
+            templates_info = {}
+            for template_name, template in templates.items():
+                templates_info[template_name] = {
+                    "name": template.name,
+                    "type": template.template_type,
+                    "description": template.description,
+                    "variables": template.variables,
+                    "model_compatibility": template.model_compatibility
+                }
+            
+            # Get models by type
+            models_by_type = {}
+            for model_type in ['code_generation', 'chat', 'reasoning', 'helper']:
+                if model_type == 'helper':
+                    models_by_type[model_type] = helper_models
+                else:
+                    from enhanced_ollama_integration import OllamaModelType
+                    type_enum = getattr(OllamaModelType, model_type.upper(), None)
+                    if type_enum:
+                        type_models = self.enhanced_ollama.get_models_by_type(type_enum)
+                        models_by_type[model_type] = list(type_models.keys())
+            
+            return {
+                "models": models_info,
+                "helper_models": helper_models,
+                "templates": templates_info,
+                "models_by_type": models_by_type,
+                "total_models": len(available_models),
+                "total_helpers": len(helper_models),
+                "total_templates": len(templates),
+                "is_running": self.enhanced_ollama.is_running
+            }
+            
+        except Exception as e:
+            logger.error(f"Failed to get Ollama models: {e}")
+            return {
+                "error": str(e),
+                "models": {},
+                "helper_models": [],
+                "templates": {}
             }

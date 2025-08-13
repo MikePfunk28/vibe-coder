@@ -120,7 +120,10 @@
     - Enable model comparison and consensus features in existing framework
     - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
-  - [ ] 3.2 Enhance existing Ollama integration
+  - [x] 3.2 Enhance existing Ollama integration
+
+
+
 
     - Build on existing Ollama support in backend
     - Add support for mikepfunk28/deepseekq3_coder:latest as helper model

@@ -64,6 +64,9 @@
 
   - [x] 2.2 Install major helpful extensions
 
+
+
+
     - This is a FULL AI IDE, MIKE-AI_IDE
       - [ ] AI Assistant - AI coding assistant
       - [ ] GitHub Copilot - AI code completion and chat

@@ -254,7 +254,11 @@ vscode-fork/
 # AI IDE Build Directory (VSCode OSS fork - too large for git)
 ai-ide/ai-ide-build/
 ai-ide/vscode-oss/
-ai-ide/vscode-oss-complete/
+# Keep VSCode OSS source but exclude build artifacts
+ai-ide/vscode-oss-complete/node_modules/
+ai-ide/vscode-oss-complete/.build/
+ai-ide/vscode-oss-complete/out/
+ai-ide/vscode-oss-complete/out-build/
 src/vs/amdX.ts
 src/vs/loader.js
 src/vs/monaco.d.ts
@@ -5417,3 +5421,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+# AI IDE Working Directories (created by scripts)
+ai-ide/vscode-oss-working/
+ai-ide/ai-ide-standalone/
+ai-ide/vscode-oss.zip

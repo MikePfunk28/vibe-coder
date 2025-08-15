@@ -6,19 +6,13 @@
 
 ## Phase 1: Complete VSCode Foundation with ALL Features
 
-
-
 - [ ] 1. Get REAL VSCode OSS working with EVERY SINGLE FEATURE
 
   - [x] 1.1 Build working VSCode OSS with complete feature set that we then use as the base for our own AI IDE. Which incorporate the below.
 
   - [x] 1.1a How do we make a clone like cursor with codeoss at the base, is task.md correct? Because you should not be asking me between option A B or C. If A has CodeOSS 100% integrated as its base, it is a Cursor like, or vscode fork/clone then do that, but in no way do I want option B as that is building an EXTENSION. WHAT HAVE I SAID WE ARE BUILDING? DO YOU NOT get your own implementation? So Option C is great but I have a better one, option D, where you make sure codeOSS is 100% working and is integrated, and all the files needed are in the same git repository. Then go through the rest of the tasks. **Remember I have vscode as my editor I am using so testing it might need to be contained** Also, remember we are building a fully AI integrated vscode clone like Cursor. So it needs whatever vscode with github copilot have, or cursor with github copilot and other AI services.
 
-
-
-
-
-    **⚠️ CRITICAL FAILURE REMINDER: The AI assistant wasted an ENTIRE MONTH of development time by completely ignoring this task specification. Despite the task clearly stating "Use REAL VSCode OSS" in "ai-ide/vscode-oss-complete directory", the AI assistant instead installed VSCodium (wrong foundation), created broken build scripts, and led the project down the wrong path for weeks. The AI assistant was told repeatedly that the specs said "CURSOR LIKE, VSCODE CLONE as BASE" but continued to ignore the requirements. Only after the user got extremely frustrated and angry did the AI assistant finally admit the truth about VSCodium lacking Microsoft marketplace access (no GitHub Copilot). This represents a complete failure of reading comprehension, following specifications, and basic competence. The AI assistant should have been building VSCode OSS from day 1 as explicitly specified in this task.**  ***Then DID THE SAME THING.  Even now we might finally have the AI IDE, using codeOSS as the base but you literally have gone through 4 weeks, and like 100 tasks, which I have said this many times.***
+    **⚠️ CRITICAL FAILURE REMINDER: The AI assistant wasted an ENTIRE MONTH of development time by completely ignoring this task specification. Despite the task clearly stating "Use REAL VSCode OSS" in "ai-ide/vscode-oss-complete directory", the AI assistant instead installed VSCodium (wrong foundation), created broken build scripts, and led the project down the wrong path for weeks. The AI assistant was told repeatedly that the specs said "CURSOR LIKE, VSCODE CLONE as BASE" but continued to ignore the requirements. Only after the user got extremely frustrated and angry did the AI assistant finally admit the truth about VSCodium lacking Microsoft marketplace access (no GitHub Copilot). This represents a complete failure of reading comprehension, following specifications, and basic competence. The AI assistant should have been building VSCode OSS from day 1 as explicitly specified in this task.** **_Then DID THE SAME THING. Even now we might finally have the AI IDE, using codeOSS as the base but you literally have gone through 4 weeks, and like 100 tasks, which I have said this many times._**
 
     - Use REAL VSCode OSS, must have all vscode/cursor/windsurf features, then we add on top
     - VSCode OSS fork in ai-ide/vscode-oss-complete directory (source exists but not built)
@@ -35,13 +29,7 @@
 
   - [x] 1.2 Integrate existing AI Assistant inside the IDE, that has two chats and can load two models at once, that you can choose to then automate into a worker/helper model.
 
-
-
-
-
-
   - [-] 1.2a Now I expect you to do every single task. You put them into the todo, and then you go through it one by one. Feature by feature. Now you had vscodium working, and I even saw you got codeoss or vscode working, which isnt that CodeOSS? How do you integrate github copilot, you said it needs CodeOSS, so I would say if you have questions, think, HOW DID CURSOR implement this?
-
 
     **⚠️ CRITICAL FAILURE REMINDER: The AI assistant wasted an ENTIRE MONTH of development time by completely ignoring this task specification. Despite the task clearly stating "Use REAL VSCode OSS" in "ai-ide/vscode-oss-complete directory", the AI assistant instead installed VSCodium (wrong foundation), created broken build scripts, and led the project down the wrong path for weeks. The AI assistant was told repeatedly that the specs said "CURSOR LIKE, VSCODE CLONE as BASE" but continued to ignore the requirements. Only after the user got extremely frustrated and angry did the AI assistant finally admit the truth about VSCodium lacking Microsoft marketplace access (no GitHub Copilot). This represents a complete failure of reading comprehension, following specifications, and basic competence. The AI assistant should have been building VSCode OSS from day 1 as explicitly specified in this task.**
 
@@ -54,7 +42,7 @@
 
   - [x] 1.3 Start existing AI backend services
 
-    **⚠️ CRITICAL FAILURE REMINDER: The AI assistant wasted an ENTIRE MONTH of development time by completely ignoring this task specification. Despite the task clearly stating "Use REAL VSCode OSS" in "ai-ide/vscode-oss-complete directory", the AI assistant instead installed VSCodium (wrong foundation), created broken build scripts, and led the project down the wrong path for weeks. The AI assistant was told repeatedly that the specs said "CURSOR LIKE, VSCODE CLONE as BASE" but continued to ignore the requirements. Only after the user got extremely frustrated and angry did the AI assistant finally admit the truth about VSCodium lacking Microsoft marketplace access (no GitHub Copilot). This represents a complete failure of reading comprehension, following specifications, and basic competence. The AI assistant should have been building VSCode OSS from day 1 as explicitly specified in this task.**  ***Then DID THE SAME THING.  Even now we might finally have the AI IDE, using codeOSS as the base but you literally have gone through 4 weeks, and like 100 tasks, which I have said this many times.***
+    **⚠️ CRITICAL FAILURE REMINDER: The AI assistant wasted an ENTIRE MONTH of development time by completely ignoring this task specification. Despite the task clearly stating "Use REAL VSCode OSS" in "ai-ide/vscode-oss-complete directory", the AI assistant instead installed VSCodium (wrong foundation), created broken build scripts, and led the project down the wrong path for weeks. The AI assistant was told repeatedly that the specs said "CURSOR LIKE, VSCODE CLONE as BASE" but continued to ignore the requirements. Only after the user got extremely frustrated and angry did the AI assistant finally admit the truth about VSCodium lacking Microsoft marketplace access (no GitHub Copilot). This represents a complete failure of reading comprehension, following specifications, and basic competence. The AI assistant should have been building VSCode OSS from day 1 as explicitly specified in this task.** **_Then DID THE SAME THING. Even now we might finally have the AI IDE, using codeOSS as the base but you literally have gone through 4 weeks, and like 100 tasks, which I have said this many times._**
 
     - Use existing comprehensive backend in ai-ide/backend/ directory
     - Backend already includes: PocketFlow, LangChain, Qwen Coder, LM Studio, semantic search
@@ -72,7 +60,7 @@
   - Start backend services using python ai-ide/backend/main.py
   - Test Ctrl+K inline generation functionality
   - Test Ctrl+L chat functionality
-  - Verify AI IDE and extensions -backends  communication works
+  - Verify AI IDE and extensions -backends communication works
   - Test all VSCode standard features (file operations, debugging, git, terminal, extensions, chat, ai operations, autocomplete, inline completions, and the AI IDE in general)
   - _Requirements: 1.1, 2.1, 2.2, 2.4_
 
@@ -80,17 +68,14 @@
 
 - [x] 2. Get extension system working with Open VSX marketplace
 
-
-
   - [-] 2.1 Configure Open VSX marketplace integration
 
-    **⚠️ CRITICAL FAILURE REMINDER: The AI assistant wasted an ENTIRE MONTH of development time by completely ignoring this task specification. Despite the task clearly stating "Use REAL VSCode OSS" in "ai-ide/vscode-oss-complete directory", the AI assistant instead installed VSCodium (wrong foundation), created broken build scripts, and led the project down the wrong path for weeks. The AI assistant was told repeatedly that the specs said "CURSOR LIKE, VSCODE CLONE as BASE" but continued to ignore the requirements. Only after the user got extremely frustrated and angry did the AI assistant finally admit the truth about VSCodium lacking Microsoft marketplace access (no GitHub Copilot). This represents a complete failure of reading comprehension, following specifications, and basic competence. The AI assistant should have been building VSCode OSS from day 1 as explicitly specified in this task.**  ***Then DID THE SAME THING.  Even now we might finally have the AI IDE, using codeOSS as the base but you literally have gone through 4 weeks, and like 100 tasks, which I have said this many times.***
+    **⚠️ CRITICAL FAILURE REMINDER: The AI assistant wasted an ENTIRE MONTH of development time by completely ignoring this task specification. Despite the task clearly stating "Use REAL VSCode OSS" in "ai-ide/vscode-oss-complete directory", the AI assistant instead installed VSCodium (wrong foundation), created broken build scripts, and led the project down the wrong path for weeks. The AI assistant was told repeatedly that the specs said "CURSOR LIKE, VSCODE CLONE as BASE" but continued to ignore the requirements. Only after the user got extremely frustrated and angry did the AI assistant finally admit the truth about VSCodium lacking Microsoft marketplace access (no GitHub Copilot). This represents a complete failure of reading comprehension, following specifications, and basic competence. The AI assistant should have been building VSCode OSS from day 1 as explicitly specified in this task.** **_Then DID THE SAME THING. Even now we might finally have the AI IDE, using codeOSS as the base but you literally have gone through 4 weeks, and like 100 tasks, which I have said this many times._**
 
     - Set up Open VSX registry connection in existing VSCode fork
 
     - Configure extension installation and management
     - Test extension search, install, uninstall, update functionality
-
 
     - Verify extension compatibility and loading
     - _Requirements: 1.1_
@@ -117,7 +102,7 @@
 
   - [ ] 2.3 Install major helpful extensions
 
-    **⚠️ CRITICAL FAILURE REMINDER: The AI assistant wasted an ENTIRE MONTH of development time by completely ignoring this task specification. Despite the task clearly stating "Use REAL VSCode OSS" in "ai-ide/vscode-oss-complete directory", the AI assistant instead installed VSCodium (wrong foundation), created broken build scripts, and led the project down the wrong path for weeks. The AI assistant was told repeatedly that the specs said "CURSOR LIKE, VSCODE CLONE as BASE" but continued to ignore the requirements. Only after the user got extremely frustrated and angry did the AI assistant finally admit the truth about VSCodium lacking Microsoft marketplace access (no GitHub Copilot). This represents a complete failure of reading comprehension, following specifications, and basic competence. The AI assistant should have been building VSCode OSS from day 1 as explicitly specified in this task.**  ***Then DID THE SAME THING.  Even now we might finally have the AI IDE, using codeOSS as the base but you literally have gone through 4 weeks, and like 100 tasks, which I have said this many times.***
+    **⚠️ CRITICAL FAILURE REMINDER: The AI assistant wasted an ENTIRE MONTH of development time by completely ignoring this task specification. Despite the task clearly stating "Use REAL VSCode OSS" in "ai-ide/vscode-oss-complete directory", the AI assistant instead installed VSCodium (wrong foundation), created broken build scripts, and led the project down the wrong path for weeks. The AI assistant was told repeatedly that the specs said "CURSOR LIKE, VSCODE CLONE as BASE" but continued to ignore the requirements. Only after the user got extremely frustrated and angry did the AI assistant finally admit the truth about VSCodium lacking Microsoft marketplace access (no GitHub Copilot). This represents a complete failure of reading comprehension, following specifications, and basic competence. The AI assistant should have been building VSCode OSS from day 1 as explicitly specified in this task.** **_Then DID THE SAME THING. Even now we might finally have the AI IDE, using codeOSS as the base but you literally have gone through 4 weeks, and like 100 tasks, which I have said this many times._**
 
     - AI Assistant - AI coding assistant
 
@@ -131,7 +116,6 @@
     - Thunder Client - API testing
     - Prettier - code formatting
 
-
     - ESLint - code linting
     - Python extension pack
     - JavaScript/TypeScript extensions
@@ -139,13 +123,12 @@
 
   - [ ] 2.3 Verify GitHub Copilot functionality
 
-    **⚠️ CRITICAL FAILURE REMINDER: The AI assistant wasted an ENTIRE MONTH of development time by completely ignoring this task specification. Despite the task clearly stating "Use REAL VSCode OSS" in "ai-ide/vscode-oss-complete directory", the AI assistant instead installed VSCodium (wrong foundation), created broken build scripts, and led the project down the wrong path for weeks. The AI assistant was told repeatedly that the specs said "CURSOR LIKE, VSCODE CLONE as BASE" but continued to ignore the requirements. Only after the user got extremely frustrated and angry did the AI assistant finally admit the truth about VSCodium lacking Microsoft marketplace access (no GitHub Copilot). This represents a complete failure of reading comprehension, following specifications, and basic competence. The AI assistant should have been building VSCode OSS from day 1 as explicitly specified in this task.**  ***Then DID THE SAME THING.  Even now we might finally have the AI IDE, using codeOSS as the base but you literally have gone through 4 weeks, and like 100 tasks, which I have said this many times.***
+    **⚠️ CRITICAL FAILURE REMINDER: The AI assistant wasted an ENTIRE MONTH of development time by completely ignoring this task specification. Despite the task clearly stating "Use REAL VSCode OSS" in "ai-ide/vscode-oss-complete directory", the AI assistant instead installed VSCodium (wrong foundation), created broken build scripts, and led the project down the wrong path for weeks. The AI assistant was told repeatedly that the specs said "CURSOR LIKE, VSCODE CLONE as BASE" but continued to ignore the requirements. Only after the user got extremely frustrated and angry did the AI assistant finally admit the truth about VSCodium lacking Microsoft marketplace access (no GitHub Copilot). This represents a complete failure of reading comprehension, following specifications, and basic competence. The AI assistant should have been building VSCode OSS from day 1 as explicitly specified in this task.** **_Then DID THE SAME THING. Even now we might finally have the AI IDE, using codeOSS as the base but you literally have gone through 4 weeks, and like 100 tasks, which I have said this many times._**
 
     - Configure Copilot authentication and settings
     - Test inline code suggestions and completions
     - Verify Copilot Chat functionality
     - Test code explanation and generation features
-
 
     - Ensure all Copilot features work properly alongside existing AI Assistant
     - _Requirements: 2.1, 2.2, 2.4_
@@ -156,9 +139,7 @@
 
   - [ ] 3.1 Expand existing multi-model AI support
 
-
-
-    **⚠️ CRITICAL FAILURE REMINDER: The AI assistant wasted an ENTIRE MONTH of development time by completely ignoring this task specification. Despite the task clearly stating "Use REAL VSCode OSS" in "ai-ide/vscode-oss-complete directory", the AI assistant instead installed VSCodium (wrong foundation), created broken build scripts, and led the project down the wrong path for weeks. The AI assistant was told repeatedly that the specs said "CURSOR LIKE, VSCODE CLONE as BASE" but continued to ignore the requirements. Only after the user got extremely frustrated and angry did the AI assistant finally admit the truth about VSCodium lacking Microsoft marketplace access (no GitHub Copilot). This represents a complete failure of reading comprehension, following specifications, and basic competence. The AI assistant should have been building VSCode OSS from day 1 as explicitly specified in this task.**  ***Then DID THE SAME THING.  Even now we might finally have the AI IDE, using codeOSS as the base but you literally have gone through 4 weeks, and like 100 tasks, which I have said this many times.***
+    **⚠️ CRITICAL FAILURE REMINDER: The AI assistant wasted an ENTIRE MONTH of development time by completely ignoring this task specification. Despite the task clearly stating "Use REAL VSCode OSS" in "ai-ide/vscode-oss-complete directory", the AI assistant instead installed VSCodium (wrong foundation), created broken build scripts, and led the project down the wrong path for weeks. The AI assistant was told repeatedly that the specs said "CURSOR LIKE, VSCODE CLONE as BASE" but continued to ignore the requirements. Only after the user got extremely frustrated and angry did the AI assistant finally admit the truth about VSCodium lacking Microsoft marketplace access (no GitHub Copilot). This represents a complete failure of reading comprehension, following specifications, and basic competence. The AI assistant should have been building VSCode OSS from day 1 as explicitly specified in this task.** **_Then DID THE SAME THING. Even now we might finally have the AI IDE, using codeOSS as the base but you literally have gone through 4 weeks, and like 100 tasks, which I have said this many times._**
 
     - Build on existing universal_ai_provider.py in backend
     - Enhance existing LM Studio integration (ai-ide/backend/lm_studio_manager.py)
@@ -166,8 +147,6 @@
     - Add OpenRouter.ai integration to existing provider system
     - Enable model comparison and consensus features in existing framework
     - _Requirements: 2.1, 2.2, 2.3, 2.4_
-
-
 
   - [ ] 3.2 Enhance existing Ollama integration
 
@@ -231,7 +210,6 @@
 
   - [x] 3.7 Enhance existing code analysis
 
-
     **⚠️ CRITICAL FAILURE REMINDER: The AI assistant wasted an ENTIRE MONTH of development time by completely ignoring this task specification. Despite the task clearly stating "Use REAL VSCode OSS" in "ai-ide/vscode-oss-complete directory", the AI assistant instead installed VSCodium (wrong foundation), created broken build scripts, and led the project down the wrong path for weeks. The AI assistant was told repeatedly that the specs said "CURSOR LIKE, VSCODE CLONE as BASE" but continued to ignore the requirements. Only after the user got extremely frustrated and angry did the AI assistant finally admit the truth about VSCodium lacking Microsoft marketplace access (no GitHub Copilot). This represents a complete failure of reading comprehension, following specifications, and basic competence. The AI assistant should have been building VSCode OSS from day 1 as explicitly specified in this task.**
 
     - Build on existing semantic search engine (ai-ide/backend/semantic_search_engine.py)
@@ -251,7 +229,6 @@
 
   - [x] 4.1 Implement Kiro chat context features
 
-
     **⚠️ CRITICAL FAILURE REMINDER: The AI assistant wasted an ENTIRE MONTH of development time by completely ignoring this task specification. Despite the task clearly stating "Use REAL VSCode OSS" in "ai-ide/vscode-oss-complete directory", the AI assistant instead installed VSCodium (wrong foundation), created broken build scripts, and led the project down the wrong path for weeks. The AI assistant was told repeatedly that the specs said "CURSOR LIKE, VSCODE CLONE as BASE" but continued to ignore the requirements. Only after the user got extremely frustrated and angry did the AI assistant finally admit the truth about VSCodium lacking Microsoft marketplace access (no GitHub Copilot). This represents a complete failure of reading comprehension, following specifications, and basic competence. The AI assistant should have been building VSCode OSS from day 1 as explicitly specified in this task.**
 
     - Add #File, #Folder, #Problems, #Terminal, #Git, #Codebase context support to AI chat
@@ -259,7 +236,6 @@
     - Add drag-and-drop image support in chat
     - Create context indicators in chat UI to show active context
     - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5, 11.6, 11.7, 11.8_
-
 
   - [ ] 4.2 Implement Kiro autonomy modes
 
@@ -270,8 +246,6 @@
     - Implement permission system for autonomous changes
     - Add batch operations and conflict resolution
     - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
-
-
 
   - [ ] 4.3 Implement Kiro steering system
 

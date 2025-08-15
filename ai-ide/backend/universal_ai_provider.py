@@ -18,6 +18,9 @@ import aiohttp
 import docker
 from pathlib import Path
 
+# Import our integrations
+from openrouter_integration import get_openrouter_integration, generate_with_openrouter
+
 logger = logging.getLogger(__name__)
 
 class ProviderType(Enum):

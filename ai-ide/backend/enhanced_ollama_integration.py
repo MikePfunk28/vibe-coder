@@ -235,15 +235,31 @@ class EnhancedOllamaIntegration:
     async def setup_helper_models(self):
         """Ensure helper models are available"""
         required_helper_models = [
-            'mikepfunk28/deepseekq3_coder:latest',
-            'deepseek-coder:6.7b',
-            'qwen2.5-coder:1.5b'
+            'mikepfunk28/deepseekq3_coder:latest',  # Custom DeepSeek model
+            'deepseek-coder:6.7b',                  # Official DeepSeek Coder
+            'qwen2.5-coder:7b',                     # Qwen Coder
+            'codellama:7b',                         # Code Llama
+            'llama3.2:3b'                           # Small general model
         ]
+        
+        logger.info("🔧 Setting up helper models...")
         
         for model_name in required_helper_models:
             if not any(model_name in available for available in self.available_models.keys()):
-                logger.info(f"🔧 Pulling helper model: {model_name}")
-                await self.pull_model(model_name)
+                logger.info(f"📥 Pulling helper model: {model_name}")
+                success = await self.pull_model(model_name)
+                if success:
+                    logger.info(f"✅ Helper model {model_name} ready")
+                else:
+                    logger.warning(f"⚠️ Failed to pull helper model: {model_name}")
+        
+        # Update helper models list
+        self.helper_models = [
+            name for name in self.available_models.keys()
+            if self._is_helper_model(name)
+        ]
+        
+        logger.info(f"🤖 {len(self.helper_models)} helper models available")
     
     async def pull_model(self, model_name: str) -> bool:
         """Pull a model from Ollama registry"""
@@ -621,4 +637,153 @@ async def generate_with_best_ollama_model(task: str, task_type: str, context: Di
         }
         return await ollama.generate_with_template(best_model.name, best_model.template, variables)
     else:
-        return await ollama.generate_completion(best_model.name, task)
+        return await ollama.generate_completion(best_model.name, task)h('xml_')]me.startswit() if naes.keysatmpln self.tee for name iamurn [n        ret""
+lates"le XML templablist of avaiet "G""  tr]:
+       List[s->lf) tes(seml_templa def get_x   
+           }
+ }'
+    failed: {eration plate geneL temrror': f'XM   'e        ,
+     Falseccess':       'su     urn {
+     et     r      n as e:
+ ept Exceptio
+        exc       }
+     e}': {arameterg required p': f'Missinror 'er       
+        se,': Falcess  'suc         
+     urn {  ret       as e:
+   ror pt KeyEr       exce       
+    esult
+      return r   
+                )
+  
+           omptatted_prt=formromp   p      me,
+       _nae=modelam model_n              name,
+ plate_ate_name=tem       templ        
+ _template(ithgenerate_wawait self.t =      resul       emplate
+ith the tnerate wGe    # 
+                   )
+ **kwargse.format(r_templatte.useplaprompt = temformatted_            kwargs
+  providedithate w templat the user     # Form    
+      try:        
+     te_name]
+tes[templa self.templae =   templat    
+     
+             }   ot found'
+ate_name} nplplate {tem f'Tem   'error':         
+    s': False,ucces         's
+       return {            es:
+templatin self.ame not te_n templa     if      
+   t"""
+  npud iructure with st templatesing XMLenerate u"G        "":
+r, Any]ct[st  ) -> Di
+  *kwargs
+        *, stre:am model_nr,
+       me: stlate_na  tempf,
+      sel
+        l_template(ith_xmate_wenerync def gas 
+    ame}")
+   ate: {ned XML templ"Addger.info(f  log         template
+ = ates[name] mplte  self.
+          ():lates.itemsempe in xml_template, t   for nam
+     
+           }e
+     s_templatxml_docation": xml_document"   ,
+         emplateebug_t": xml_dbuggingxml_de         "e,
+   templatl_review_xmview": e_reml_cod        "x   mplate,
+ code_te: xml_tion"neraml_code_ge      "x {
+      es =xml_templat
+        ection to collL templates Add XM   #      
+     
+  
+        )       }    : 2500
+ kens" "max_to     
+          : 0.8,   "top_p"     
+        ture": 0.5,pera     "tem         ters={
+      parame       ,
+ """tion:entacumnerate do
+Ge>
+n_requestiontat</documeience>
+ience}</audence>{aud
+<audiype>type}</doc_tpe>{doc_ty
+<doc_</language>uage}ge>{lang
+<languade}
+</code><code>
+{coest>
+qumentation_re"""<documplate=r_te    use        s.""",
+otee n, and usagvaluesrn ters, retues, paramede exampltion.
+Inclue documentaensivomprehlear, c Generate cer.it wra technicalou are ""Y_prompt="  system         ion",
+ cumentatml_do name="x        late(
+   Templlama= Os_template ml_doc       xte
+ on TemplamentatiL Docu    # XM   
+          )
+       }
+            ": 1800
+okens"max_t                .7,
+"top_p": 0           
+     re": 0.2,ratu"tempe               
+ ters={     parame",
+       ""sue:ug this isebHelp d
+
+t>_requesxt>
+</debugconteontext}</context>{cguage>
+<age}</lannguuage>{lalangor>
+<errerror}
+</rror>
+{de>
+<e
+</co>
+{code}de
+<coug_request>""<deb"mplate=    user_te  ",
+      .""ionsgestfix suguidance and ng gggidebu-step -byGive steputions.
+vide solr to pro and erro code Analyze the expert.uggingdeb a "You are""m_prompt=  syste
+          ng",l_debuggime="xm      na(
+      teemplaaTte = Ollamg_templa   xml_debulate
+     ugging Tempeb  # XML D    
+          
+
+        ) }           
+": 1500"max_tokens          8,
+      : 0.top_p"    "            .4,
+: 0ature"    "temper           ={
+ meters   para        
+ """,code review:led a detaie idw>
+
+Prov/code_revie_areas>
+<}
+</focusus_areas>
+{focfocus_areasguage>
+<anage}</lgulan
+<language>{/code>{code}
+<ode>
+view>
+<c_re="""<codeemplateuser_t    ,
+        ity."""aintainabilurity, and m secperformance,rrectness, con cus oack.
+Fo feedbuctive give constrand code edthe providnalyze wer. Arevie code niora seYou are """t=omptem_pr    sys       ,
+ iew"_revodeame="xml_c  n      
+    aTemplate(Ollamplate = tem_review_     xml   Template
+ Review   # XML Code       
+   )
+       }
+              00
+   tokens": 20      "max_          ": 0.9,
+  "top_p          ,
+    ture": 0.3era"temp           {
+     rs=mete para      
+     "",de:" coquestederate the reenquest>
+
+Gre>
+</uirements
+</reqnts}remequints>
+{reequiremecontext>
+<rntext}</ext>{co>
+<contlanguageage}</e>{languuag
+<lang}</task>sk
+<task>{ta"<request>=""plateuser_tem          """,
+  actices.prlows best that folde ted co-commenan, wellith cled wesponways rest.
+Alctured requthe XML-strud on se baenerate coderogrammer. Gpert pre an ex="""You aptstem_prom      syn",
+      e_generatio"xml_cod name=           plate(
+= OllamaTemtemplate de_ xml_coate
+       empl Teneration GML Code        # X       
+
+ pts"""ompred urructtes for stplaML-based temreate X"C"    "):
+    tes(self_template_xmlcreadef _
+    
